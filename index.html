@@ -1462,9 +1462,9 @@
                             ${quickLinks.map(link => `<div class="quick-link" data-nav="${link.nav}" data-action="${link.action || ''}"><i class="fas ${link.icon}"></i> ${link.name}</div>`).join('')}
                         </div>
                         <div class="button-group">
-                            <button id="backupAllData" class="btn-backup"><i class="fas fa-database"></i> 备份全部数据</button>
-                            ${isAdmin ? `<button id="restoreAllData" class="btn-restore"><i class="fas fa-upload"></i> 恢复全部数据</button><input type="file" id="restoreFileInput" style="display:none;">` : ''}
-                        </div>
+    ${isAdmin ? `<button id="backupAllData" class="btn-backup"><i class="fas fa-database"></i> 备份全部数据</button>` : ''}
+    ${isAdmin ? `<button id="restoreAllData" class="btn-restore"><i class="fas fa-upload"></i> 恢复全部数据</button><input type="file" id="restoreFileInput" style="display:none;">` : ''}
+</div>
                     </div>
                 </div>
             </div>
