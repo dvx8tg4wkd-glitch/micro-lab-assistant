@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>微检助手 · 临床微生物检验科工作小助手（完整版）</title>
+    <title>微检助手 · 临床微生物检验科工作小助手</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -73,6 +73,18 @@
         .search-wrapper input { border: none; background: transparent; padding: 10px 12px; font-size: 0.95rem; width: 100%; outline: none; }
         .search-wrapper button { background: none; border: none; cursor: pointer; color: #2c7fb8; padding: 6px 8px; }
         .badge-tips { background: #eef2ff; border-radius: 30px; padding: 6px 16px; font-size: 0.8rem; color: #1e6b8f; }
+        .admin-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .admin-buttons button {
+            background: #eef2f6;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
         .content-pane { padding: 24px 28px; }
         
         /* 卡片网格布局 */
@@ -189,7 +201,6 @@
             padding-left: 16px;
         }
         .no-result { text-align: center; padding: 48px 20px; background: white; border-radius: 40px; color: #8aa9c4; }
-        .dashboard-welcome { background: white; border-radius: 28px; padding: 20px 24px; margin-bottom: 28px; border: 1px solid #e5edf3; }
         .search-engine-directory { background: #ffffffea; border-radius: 28px; padding: 6px 12px 18px; margin-bottom: 28px; border: 1px solid #e2edf5; }
         .dir-grid { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px; }
         .dir-chip { background: #eff6fc; border-radius: 40px; padding: 8px 18px; font-size: 0.8rem; font-weight: 500; color: #1b6c8f; cursor: pointer; border: 1px solid #dbe9f2; }
@@ -346,6 +357,7 @@
             .file-list-item { flex-direction: column; align-items: flex-start; gap: 8px; }
             .file-info { width: 100%; }
             .file-actions { width: 100%; justify-content: flex-start; margin-top: 8px; }
+            .admin-buttons { order: -1; margin-bottom: 8px; }
         }
     </style>
 </head>
@@ -361,13 +373,13 @@
             <div class="nav-item" data-nav="bacteria"><i class="fas fa-bacteria"></i> <span>细菌目录库</span></div>
             <div class="nav-item" data-nav="fungus"><i class="fas fa-leaf"></i> <span>真菌目录库</span></div>
             <div class="nav-item" data-nav="antibiotic"><i class="fas fa-capsules"></i> <span>抗生素 & 药敏</span></div>
-            <div class="nav-item" data-nav="microbe_projects"><i class="fas fa-vial"></i> <span>检验科项目</span></div>
+            <div class="nav-item" data-nav="microbe_projects"><i class="fas fa-vial"></i> <span>微生物项目</span></div>
             <div class="nav-item" data-nav="resistance_data"><i class="fas fa-chart-line"></i> <span>耐药数据</span></div>
             <div class="nav-item" data-nav="natural_resistance"><i class="fas fa-table-list"></i> <span>天然耐药表</span></div>
             <div class="nav-item" data-nav="protocol"><i class="fas fa-clinic-medical"></i> <span>检验规程 / SOP</span></div>
             <div class="nav-item" data-nav="qc"><i class="fas fa-chart-line"></i> <span>质控标准</span></div>
         </div>
-        <div class="sidebar-footer"><i class="fas fa-database"></i> 全功能版 · 现代工作台</div>
+        <div class="sidebar-footer"><i class="fas fa-database"></i> 全功能版 · 管理员登录后可编辑</div>
     </div>
 
     <div class="main-content">
@@ -377,13 +389,45 @@
                 <input type="text" id="globalSearchInput" placeholder="搜索菌种、真菌、项目、文件..." autocomplete="off">
                 <button id="clearSearchBtn"><i class="fas fa-times-circle"></i></button>
             </div>
-            <div class="badge-tips"><i class="fas fa-file-excel"></i> 细菌/真菌支持Excel批量导入 | 文件列表垂直布局</div>
+            <div class="badge-tips"><i class="fas fa-file-excel"></i> 细菌/真菌支持Excel批量导入</div>
+            <div class="admin-buttons">
+                <button id="adminLoginBtn"><i class="fas fa-user-shield"></i> 管理员</button>
+                <button id="adminLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i> 退出</button>
+            </div>
         </div>
         <div class="content-pane" id="dynamicContent"><div class="loading">加载中...</div></div>
     </div>
 </div>
 
 <script>
+    // ======================= 管理员权限控制 =======================
+    let isAdmin = false;
+    const ADMIN_PASSWORD = 'admin123';  // 可自行修改密码
+
+    function checkAdmin() { return isAdmin; }
+    function adminLogin(password) {
+        if (password === ADMIN_PASSWORD) {
+            isAdmin = true;
+            localStorage.setItem('micro_admin_logged', 'true');
+            showToast('管理员登录成功', 'success');
+            renderMain();
+            return true;
+        } else {
+            showToast('密码错误', 'error');
+            return false;
+        }
+    }
+    function adminLogout() {
+        isAdmin = false;
+        localStorage.setItem('micro_admin_logged', 'false');
+        showToast('已退出管理员模式', 'info');
+        renderMain();
+    }
+    function initAdminStatus() {
+        const saved = localStorage.getItem('micro_admin_logged');
+        if (saved === 'true') isAdmin = true;
+    }
+
     // ======================= IndexedDB 初始化 =======================
     const DB_NAME = 'MicroLabDB';
     const DB_VERSION = 6;
@@ -472,10 +516,12 @@
         if(!container) return;
         const prefix = moduleKey + '_';
         const files = await getFilesByPrefix(prefix);
-        let html = `<div class="section-title"><i class="fas fa-file-alt"></i> ${moduleTitle}</div>
-                    <div style="margin-bottom:20px;"><button class="btn-upload" id="uploadFilesBtn"><i class="fas fa-upload"></i> 上传文件</button></div>`;
+        let html = `<div class="section-title"><i class="fas fa-file-alt"></i> ${moduleTitle}</div>`;
+        if (isAdmin) {
+            html += `<div style="margin-bottom:20px;"><button class="btn-upload" id="uploadFilesBtn"><i class="fas fa-upload"></i> 上传文件</button></div>`;
+        }
         if(files.length === 0){
-            html += `<div class="empty-files">暂无文件，点击上方按钮上传 Word/PDF/PPT 等文件</div>`;
+            html += `<div class="empty-files">暂无文件，${isAdmin ? '点击上方按钮上传' : '请联系管理员上传'}</div>`;
         } else {
             html += `<div class="file-list">
                         <div class="file-list-header">
@@ -495,57 +541,75 @@
                                 <div class="file-icon-small"><i class="fas ${iconClass}"></i></div>
                                 <div class="file-name-text" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
                             </div>
-                            <div class="file-actions">
-                                <button class="edit-filename" data-key="${file.key}" data-name="${escapeHtml(file.name)}"><i class="fas fa-edit"></i> 重命名</button>
-                                <button class="download-file" data-key="${file.key}"><i class="fas fa-download"></i> 下载</button>
-                                <button class="delete-file" data-key="${file.key}"><i class="fas fa-trash-alt"></i> 删除</button>
-                            </div>
-                        </div>`;
+                            <div class="file-actions">`;
+                if (isAdmin) {
+                    html += `<button class="edit-filename" data-key="${file.key}" data-name="${escapeHtml(file.name)}"><i class="fas fa-edit"></i> 重命名</button>
+                             <button class="download-file" data-key="${file.key}"><i class="fas fa-download"></i> 下载</button>
+                             <button class="delete-file" data-key="${file.key}"><i class="fas fa-trash-alt"></i> 删除</button>`;
+                } else {
+                    html += `<button class="download-file" data-key="${file.key}"><i class="fas fa-download"></i> 下载</button>`;
+                }
+                html += `</div></div>`;
             }
             html += `</div>`;
         }
         container.innerHTML = html;
         
-        document.getElementById('uploadFilesBtn')?.addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.multiple = true;
-            input.accept = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt';
-            input.onchange = async (e) => {
-                const filesList = Array.from(e.target.files);
-                if(filesList.length === 0) return;
-                for(const f of filesList) {
-                    const key = prefix + Date.now() + '_' + f.name;
-                    const blob = await f.arrayBuffer().then(buf => new Blob([buf], {type: f.type}));
-                    await saveFile(key, f.name, blob, f.type, f.size);
-                }
-                await renderFileManager(moduleKey, moduleTitle);
-                showToast(`已上传 ${filesList.length} 个文件`, 'success');
-            };
-            input.click();
-        });
-        
-        document.querySelectorAll('.edit-filename').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const key = btn.getAttribute('data-key');
-                const oldName = btn.getAttribute('data-name');
-                const newName = prompt('请输入新文件名', oldName);
-                if(newName && newName.trim() && newName !== oldName) {
-                    await updateFileName(key, newName.trim());
+        if (isAdmin) {
+            document.getElementById('uploadFilesBtn')?.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.multiple = true;
+                input.accept = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt';
+                input.onchange = async (e) => {
+                    const filesList = Array.from(e.target.files);
+                    if(filesList.length === 0) return;
+                    for(const f of filesList) {
+                        const key = prefix + Date.now() + '_' + f.name;
+                        const blob = await f.arrayBuffer().then(buf => new Blob([buf], {type: f.type}));
+                        await saveFile(key, f.name, blob, f.type, f.size);
+                    }
                     await renderFileManager(moduleKey, moduleTitle);
-                    showToast('文件名已更新', 'success');
-                }
+                    showToast(`已上传 ${filesList.length} 个文件`, 'success');
+                };
+                input.click();
             });
-        });
+            
+            document.querySelectorAll('.edit-filename').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const key = btn.getAttribute('data-key');
+                    const oldName = btn.getAttribute('data-name');
+                    const newName = prompt('请输入新文件名', oldName);
+                    if(newName && newName.trim() && newName !== oldName) {
+                        await updateFileName(key, newName.trim());
+                        await renderFileManager(moduleKey, moduleTitle);
+                        showToast('文件名已更新', 'success');
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.delete-file').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if(confirm('确定删除该文件吗？')) {
+                        const key = btn.getAttribute('data-key');
+                        await deleteFile(key);
+                        await renderFileManager(moduleKey, moduleTitle);
+                        showToast('已删除', 'success');
+                    }
+                });
+            });
+        }
         
+        // 下载按钮始终可用
         document.querySelectorAll('.download-file').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const key = btn.getAttribute('data-key');
                 if(!db) await openDB();
-                const tx = db.transaction([STORE_FILES], 'readonly');
-                const store = tx.objectStore(STORE_FILES);
+                const tx = db.transaction([STORE_ATTACHMENTS], 'readonly');
+                const store = tx.objectStore(STORE_ATTACHMENTS);
                 const req = store.get(key);
                 req.onsuccess = () => {
                     const file = req.result;
@@ -558,18 +622,6 @@
                         URL.revokeObjectURL(url);
                     } else { showToast('文件不存在', 'error'); }
                 };
-            });
-        });
-        
-        document.querySelectorAll('.delete-file').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if(confirm('确定删除该文件吗？')) {
-                    const key = btn.getAttribute('data-key');
-                    await deleteFile(key);
-                    await renderFileManager(moduleKey, moduleTitle);
-                    showToast('已删除', 'success');
-                }
             });
         });
     }
@@ -585,8 +637,9 @@
     async function saveProject(item) { if(!db) await openDB(); const tx=db.transaction([STORE_PROJECTS],'readwrite'); const store=tx.objectStore(STORE_PROJECTS); store.put(item); return new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
     async function deleteProject(id) { if(!db) await openDB(); const tx=db.transaction([STORE_PROJECTS],'readwrite'); const store=tx.objectStore(STORE_PROJECTS); store.delete(id); return new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
     
-    // 导入细菌Excel
+    // 导入细菌Excel（仅管理员可用，但函数本身需保留）
     async function importBacteriaExcel() {
+        if (!isAdmin) { showToast('无权限', 'error'); return; }
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.xlsx,.xls,.csv';
@@ -633,8 +686,8 @@
         };
         input.click();
     }
-    // 导入真菌Excel
     async function importFungusExcel() {
+        if (!isAdmin) { showToast('无权限', 'error'); return; }
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.xlsx,.xls,.csv';
@@ -686,18 +739,23 @@
     async function renderBacteriaModule(){
         const items = await getAllBacteria();
         let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
-                        <div class="section-title" style="margin:0;"><i class="fas fa-bacteria"></i> 细菌目录库</div>
-                        <div class="toolbar-buttons">
-                            <button class="btn-add" id="addBacteriaBtn"><i class="fas fa-plus"></i> 新增细菌</button>
-                            <button class="btn-import" id="importBacteriaBtn"><i class="fas fa-file-excel"></i> 导入Excel</button>
-                        </div>
+                        <div class="section-title" style="margin:0;"><i class="fas fa-bacteria"></i> 细菌目录库</div>`;
+        if (isAdmin) {
+            html += `<div class="toolbar-buttons">
+                        <button class="btn-add" id="addBacteriaBtn"><i class="fas fa-plus"></i> 新增细菌</button>
+                        <button class="btn-import" id="importBacteriaBtn"><i class="fas fa-file-excel"></i> 导入Excel</button>
                     </div>`;
+        }
+        html += `</div>`;
         if(!items.length) html+=`<div class="no-result">暂无数据</div>`;
         else{
             html+=`<div class="card-grid">`;
             for(const it of items){
-                html+=`<div class="data-card"><div class="card-actions"><button class="edit-bacteria" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-bacteria" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>
-                        <div class="card-title">${escapeHtml(it.name)} <span style="font-size:0.8rem;">${escapeHtml(it.englishName||'')}</span></div>
+                html+=`<div class="data-card">`;
+                if (isAdmin) {
+                    html+=`<div class="card-actions"><button class="edit-bacteria" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-bacteria" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                }
+                html+=`<div class="card-title">${escapeHtml(it.name)} <span style="font-size:0.8rem;">${escapeHtml(it.englishName||'')}</span></div>
                         <div class="card-field"><strong>一般特性：</strong> ${escapeHtml(it.characteristics||'')}</div>
                         <div class="card-field"><strong>临床相关性：</strong> ${escapeHtml(it.clinical||'')}</div>
                         <div class="card-field"><strong>药敏测试：</strong> ${escapeHtml(it.susceptibility||'')}</div></div>`;
@@ -705,26 +763,33 @@
             html+=`</div>`;
         }
         document.getElementById("dynamicContent").innerHTML=html;
-        document.getElementById("addBacteriaBtn")?.addEventListener("click",()=>showBacteriaForm());
-        document.getElementById("importBacteriaBtn")?.addEventListener("click",importBacteriaExcel);
-        document.querySelectorAll('.edit-bacteria').forEach(btn=>btn.addEventListener("click",async()=>{ const id=parseInt(btn.dataset.id); const list=await getAllBacteria(); const it=list.find(i=>i.id===id); if(it) showBacteriaForm(it); }));
-        document.querySelectorAll('.delete-bacteria').forEach(btn=>btn.addEventListener("click",async()=>{ if(confirm("删除？")){ await deleteBacteriaItem(parseInt(btn.dataset.id)); await renderBacteriaModule(); showToast("已删除","success"); } }));
+        if (isAdmin) {
+            document.getElementById("addBacteriaBtn")?.addEventListener("click",()=>showBacteriaForm());
+            document.getElementById("importBacteriaBtn")?.addEventListener("click",importBacteriaExcel);
+            document.querySelectorAll('.edit-bacteria').forEach(btn=>btn.addEventListener("click",async()=>{ const id=parseInt(btn.dataset.id); const list=await getAllBacteria(); const it=list.find(i=>i.id===id); if(it) showBacteriaForm(it); }));
+            document.querySelectorAll('.delete-bacteria').forEach(btn=>btn.addEventListener("click",async()=>{ if(confirm("删除？")){ await deleteBacteriaItem(parseInt(btn.dataset.id)); await renderBacteriaModule(); showToast("已删除","success"); } }));
+        }
     }
     async function renderFungusModule(){
         const items = await getAllFungi();
         let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
-                        <div class="section-title" style="margin:0;"><i class="fas fa-leaf"></i> 真菌目录库</div>
-                        <div class="toolbar-buttons">
-                            <button class="btn-add" id="addFungusBtn"><i class="fas fa-plus"></i> 新增真菌</button>
-                            <button class="btn-import" id="importFungusBtn"><i class="fas fa-file-excel"></i> 导入Excel</button>
-                        </div>
+                        <div class="section-title" style="margin:0;"><i class="fas fa-leaf"></i> 真菌目录库</div>`;
+        if (isAdmin) {
+            html += `<div class="toolbar-buttons">
+                        <button class="btn-add" id="addFungusBtn"><i class="fas fa-plus"></i> 新增真菌</button>
+                        <button class="btn-import" id="importFungusBtn"><i class="fas fa-file-excel"></i> 导入Excel</button>
                     </div>`;
+        }
+        html += `</div>`;
         if(!items.length) html+=`<div class="no-result">暂无数据</div>`;
         else{
             html+=`<div class="card-grid">`;
             for(const it of items){
-                html+=`<div class="data-card"><div class="card-actions"><button class="edit-fungus" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-fungus" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>
-                        <div class="card-title">${escapeHtml(it.name)} <span style="font-size:0.8rem;">${escapeHtml(it.englishName||'')}</span></div>
+                html+=`<div class="data-card">`;
+                if (isAdmin) {
+                    html+=`<div class="card-actions"><button class="edit-fungus" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-fungus" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                }
+                html+=`<div class="card-title">${escapeHtml(it.name)} <span style="font-size:0.8rem;">${escapeHtml(it.englishName||'')}</span></div>
                         <div class="card-field"><strong>一般特性：</strong> ${escapeHtml(it.characteristics||'')}</div>
                         <div class="card-field"><strong>临床相关性：</strong> ${escapeHtml(it.clinical||'')}</div>
                         <div class="card-field"><strong>药敏测试：</strong> ${escapeHtml(it.susceptibility||'')}</div></div>`;
@@ -732,22 +797,31 @@
             html+=`</div>`;
         }
         document.getElementById("dynamicContent").innerHTML=html;
-        document.getElementById("addFungusBtn")?.addEventListener("click",()=>showFungusForm());
-        document.getElementById("importFungusBtn")?.addEventListener("click",importFungusExcel);
-        document.querySelectorAll('.edit-fungus').forEach(btn=>btn.addEventListener("click",async()=>{ const id=parseInt(btn.dataset.id); const list=await getAllFungi(); const it=list.find(i=>i.id===id); if(it) showFungusForm(it); }));
-        document.querySelectorAll('.delete-fungus').forEach(btn=>btn.addEventListener("click",async()=>{ if(confirm("删除？")){ await deleteFungusItem(parseInt(btn.dataset.id)); await renderFungusModule(); showToast("已删除","success"); } }));
+        if (isAdmin) {
+            document.getElementById("addFungusBtn")?.addEventListener("click",()=>showFungusForm());
+            document.getElementById("importFungusBtn")?.addEventListener("click",importFungusExcel);
+            document.querySelectorAll('.edit-fungus').forEach(btn=>btn.addEventListener("click",async()=>{ const id=parseInt(btn.dataset.id); const list=await getAllFungi(); const it=list.find(i=>i.id===id); if(it) showFungusForm(it); }));
+            document.querySelectorAll('.delete-fungus').forEach(btn=>btn.addEventListener("click",async()=>{ if(confirm("删除？")){ await deleteFungusItem(parseInt(btn.dataset.id)); await renderFungusModule(); showToast("已删除","success"); } }));
+        }
     }
     
     // 微生物项目模块
     async function renderMicrobeProjectsModule(){
         const items = await getAllProjects();
-        let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:12px; margin-bottom:20px;"><div class="section-title" style="margin:0;"><i class="fas fa-vial"></i> 微生物项目</div><div class="toolbar-buttons"><button class="btn-add" id="addProjectBtn"><i class="fas fa-plus"></i> 新增项目</button><button class="btn-import" id="importProjectBtn"><i class="fas fa-file-excel"></i> 导入Excel</button></div></div>`;
+        let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:12px; margin-bottom:20px;"><div class="section-title" style="margin:0;"><i class="fas fa-vial"></i> 微生物项目</div>`;
+        if (isAdmin) {
+            html += `<div class="toolbar-buttons"><button class="btn-add" id="addProjectBtn"><i class="fas fa-plus"></i> 新增项目</button><button class="btn-import" id="importProjectBtn"><i class="fas fa-file-excel"></i> 导入Excel</button></div>`;
+        }
+        html += `</div>`;
         if(!items.length) html+=`<div class="no-result">暂无数据</div>`;
         else{
             html+=`<div class="card-grid">`;
             for(const it of items){
-                html+=`<div class="data-card"><div class="card-actions"><button class="edit-project" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-project" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>
-                        <div class="card-title">${escapeHtml(it.name)}</div>
+                html+=`<div class="data-card">`;
+                if (isAdmin) {
+                    html+=`<div class="card-actions"><button class="edit-project" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-project" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                }
+                html+=`<div class="card-title">${escapeHtml(it.name)}</div>
                         <div class="card-field"><strong>编码：</strong> ${escapeHtml(it.code||'-')}</div>
                         <div class="card-field"><strong>简码：</strong> ${escapeHtml(it.shortCode||'-')}</div>
                         <div class="card-field"><strong>价格：</strong> ${escapeHtml(it.price||'-')}</div>
@@ -757,10 +831,12 @@
             html+=`</div>`;
         }
         document.getElementById("dynamicContent").innerHTML=html;
-        document.getElementById("addProjectBtn")?.addEventListener('click',()=>showProjectForm());
-        document.getElementById("importProjectBtn")?.addEventListener('click',importProjectsExcel);
-        document.querySelectorAll('.edit-project').forEach(btn=>btn.addEventListener('click',async()=>{ const id=parseInt(btn.dataset.id); const all=await getAllProjects(); const proj=all.find(p=>p.id===id); if(proj) showProjectForm(proj); }));
-        document.querySelectorAll('.delete-project').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("删除？")){ await deleteProject(parseInt(btn.dataset.id)); await renderMicrobeProjectsModule(); showToast("已删除","success"); } }));
+        if (isAdmin) {
+            document.getElementById("addProjectBtn")?.addEventListener('click',()=>showProjectForm());
+            document.getElementById("importProjectBtn")?.addEventListener('click',importProjectsExcel);
+            document.querySelectorAll('.edit-project').forEach(btn=>btn.addEventListener('click',async()=>{ const id=parseInt(btn.dataset.id); const all=await getAllProjects(); const proj=all.find(p=>p.id===id); if(proj) showProjectForm(proj); }));
+            document.querySelectorAll('.delete-project').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("删除？")){ await deleteProject(parseInt(btn.dataset.id)); await renderMicrobeProjectsModule(); showToast("已删除","success"); } }));
+        }
     }
     
     // 表单相关变量和函数
@@ -775,9 +851,10 @@
     function closeProjectModal(){ document.getElementById('projectModal').classList.remove('active'); currentProjectItem=null; }
     async function saveProjectModal(){ const name=document.getElementById('projectName').value.trim(); if(!name){ alert('请输入项目名称'); return; } const item={ name, code:document.getElementById('projectCode').value.trim(), shortCode:document.getElementById('projectShortCode').value.trim(), price:document.getElementById('projectPrice').value.trim(), detail:document.getElementById('projectDetail').value.trim(), reportTime:document.getElementById('projectReportTime').value.trim() }; if(currentProjectItem?.id) item.id=currentProjectItem.id; await saveProject(item); closeProjectModal(); await renderMicrobeProjectsModule(); showToast('保存成功','success'); }
     async function importProjectsExcel(){
+        if (!isAdmin) { showToast('无权限', 'error'); return; }
         const input=document.createElement('input'); input.type='file'; input.accept='.xlsx,.xls,.csv'; input.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; const loader=document.createElement('div'); loader.className='loading-overlay'; loader.innerHTML='<div>解析中...</div>'; document.body.appendChild(loader); try{ const data=await file.arrayBuffer(); const workbook=XLSX.read(data,{type:'array'}); const sheet=workbook.Sheets[workbook.SheetNames[0]]; const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:""}); if(!rows||rows.length<2) throw new Error('至少需要标题行'); const headers=rows[0].map(c=>String(c||"").trim()); const nameIdx=headers.findIndex(h=>h.includes('项目名称')||h.includes('名称')); const codeIdx=headers.findIndex(h=>h.includes('编码')); const shortIdx=headers.findIndex(h=>h.includes('简码')); const priceIdx=headers.findIndex(h=>h.includes('价格')||h.includes('收费')); const detailIdx=headers.findIndex(h=>h.includes('细项')); const reportIdx=headers.findIndex(h=>h.includes('出报告时间')); if(nameIdx===-1) throw new Error('未找到项目名称列'); let count=0; for(let i=1;i<rows.length;i++){ const row=rows[i]; if(!row||row.length===0) continue; const name=row[nameIdx]?String(row[nameIdx]).trim():''; if(!name) continue; const code=codeIdx!==-1&&row[codeIdx]?String(row[codeIdx]).trim():''; const shortCode=shortIdx!==-1&&row[shortIdx]?String(row[shortIdx]).trim():''; const price=priceIdx!==-1&&row[priceIdx]?String(row[priceIdx]).trim():''; const detail=detailIdx!==-1&&row[detailIdx]?String(row[detailIdx]).trim():''; const reportTime=reportIdx!==-1&&row[reportIdx]?String(row[reportIdx]).trim():''; const all=await getAllProjects(); const existing=all.find(p=>p.name===name); if(existing){ existing.code=code; existing.shortCode=shortCode; existing.price=price; existing.detail=detail; existing.reportTime=reportTime; await saveProject(existing); } else { await saveProject({name,code,shortCode,price,detail,reportTime}); } count++; } showToast(`导入完成，共${count}条`,'success'); await renderMicrobeProjectsModule(); } catch(err){ alert('导入失败：'+err.message); } finally{ loader.remove(); } }; input.click(); }
     
-    // 耐药数据和天然耐药表（保留完整功能）
+    // 耐药数据和天然耐药表（保留完整功能，但只读模式下禁用编辑）
     const subSections = [
         { id: "hospital", name: "全院情况", type: "simple", defaultContent: "<p>全院耐药监测数据</p>" },
         { id: "specimen", name: "标本类型及耐药情况", type: "group", children: [
@@ -863,9 +940,13 @@
             level1.children.forEach((child,idx)=>{ subTabsHtml+=`<div class="sub-sub-tab ${idx===currentActiveSubSub?'active':''}" data-subsub-idx="${idx}">${child.name}</div>`; });
             subTabsHtml+=`</div>`;
         }
-        const toolbarHtml=`<div class="editable-toolbar"><button id="saveResBtn"><i class="fas fa-save"></i> 保存内容</button><button id="insertImgBtn"><i class="fas fa-image"></i> 插入图片</button><button id="uploadResFileBtn"><i class="fas fa-upload"></i> 上传附件</button><button id="resetResBtn"><i class="fas fa-undo-alt"></i> 重置</button></div>
-        <div id="resEditableDiv" class="editable-content" contenteditable="true">${savedHtml}</div><div id="resAttachmentContainer" class="attachment-list"></div><div class="save-hint">✓ 编辑后保存或 Ctrl+S</div>`;
-        container.innerHTML=tabsHtml+subTabsHtml+`<div class="section-title"><i class="fas fa-chart-line"></i> ${level1.name}${level2?' - '+level2.name:''}</div>`+toolbarHtml;
+        let toolbarHtml = "";
+        if (isAdmin) {
+            toolbarHtml = `<div class="editable-toolbar"><button id="saveResBtn"><i class="fas fa-save"></i> 保存内容</button><button id="insertImgBtn"><i class="fas fa-image"></i> 插入图片</button><button id="uploadResFileBtn"><i class="fas fa-upload"></i> 上传附件</button><button id="resetResBtn"><i class="fas fa-undo-alt"></i> 重置</button></div>`;
+        }
+        const editorEditable = isAdmin ? 'true' : 'false';
+        const htmlContent = `<div id="resEditableDiv" class="editable-content" contenteditable="${editorEditable}">${savedHtml}</div><div id="resAttachmentContainer" class="attachment-list"></div><div class="save-hint">${isAdmin ? '✓ 编辑后保存或 Ctrl+S' : '只读模式'}</div>`;
+        container.innerHTML = tabsHtml + subTabsHtml + `<div class="section-title"><i class="fas fa-chart-line"></i> ${level1.name}${level2?' - '+level2.name:''}</div>` + toolbarHtml + htmlContent;
         const editor=document.getElementById("resEditableDiv");
         const prefix=await getAttachmentPrefix(level1,level2);
         async function refreshAttachments(){
@@ -875,23 +956,31 @@
             if(attachments.length===0){ attachDiv.innerHTML='<div class="attachment-list"><div class="attachment-title">附件</div><div>暂无附件</div></div>'; return; }
             let attachHtml=`<div class="attachment-list"><div class="attachment-title">附件列表</div>`;
             for(const att of attachments){
-                attachHtml+=`<div class="attachment-item"><span class="attachment-name">${escapeHtml(att.name)}</span><div class="attachment-actions"><button class="download-attach" data-key="${att.key}"><i class="fas fa-download"></i></button><button class="delete-attach" data-key="${att.key}"><i class="fas fa-trash-alt"></i></button></div></div>`;
+                attachHtml+=`<div class="attachment-item"><span class="attachment-name">${escapeHtml(att.name)}</span><div class="attachment-actions">`;
+                if (isAdmin) {
+                    attachHtml+=`<button class="delete-attach" data-key="${att.key}"><i class="fas fa-trash-alt"></i></button>`;
+                }
+                attachHtml+=`<button class="download-attach" data-key="${att.key}"><i class="fas fa-download"></i></button></div></div>`;
             }
             attachHtml+=`</div>`;
             attachDiv.innerHTML=attachHtml;
             document.querySelectorAll('.download-attach').forEach(btn=>btn.addEventListener('click',async (e)=>{ const key=btn.getAttribute('data-key'); const tx=db.transaction([STORE_ATTACHMENTS],'readonly'); const store=tx.objectStore(STORE_ATTACHMENTS); const req=store.get(key); req.onsuccess=()=>{ const rec=req.result; if(rec && rec.blob){ const url=URL.createObjectURL(rec.blob); const a=document.createElement('a'); a.href=url; a.download=rec.name; a.click(); URL.revokeObjectURL(url); } }; }));
-            document.querySelectorAll('.delete-attach').forEach(btn=>btn.addEventListener('click',async (e)=>{ if(confirm("删除附件？")){ const key=btn.getAttribute('data-key'); await deleteAttachment(key); await refreshAttachments(); showToast("已删除","success"); } }));
+            if (isAdmin) {
+                document.querySelectorAll('.delete-attach').forEach(btn=>btn.addEventListener('click',async (e)=>{ if(confirm("删除附件？")){ const key=btn.getAttribute('data-key'); await deleteAttachment(key); await refreshAttachments(); showToast("已删除","success"); } }));
+            }
         }
         await refreshAttachments();
-        document.getElementById("saveResBtn")?.addEventListener("click",async()=>{ await saveResistanceContent(level1,level2,editor.innerHTML); showToast("保存成功","success"); });
-        document.getElementById("insertImgBtn")?.addEventListener("click",()=>{ editor.focus(); insertImagesSorted(editor); });
-        document.getElementById("uploadResFileBtn")?.addEventListener("click",async()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='.doc,.docx,.xls,.xlsx,.pdf,.txt,.ppt,.pptx'; inp.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; const key=prefix+Date.now()+'_'+file.name; await saveAttachment(key,file.name,file.type,file); showToast(`已上传 ${file.name}`,"success"); await refreshAttachments(); }; inp.click(); });
-        document.getElementById("resetResBtn")?.addEventListener("click",async()=>{ if(confirm("重置丢失内容？")){ const def=level2?level2.defaultContent:level1.defaultContent; editor.innerHTML=def; await saveResistanceContent(level1,level2,def); showToast("已重置","info"); } });
-        const ctrlSave=(e)=>{ if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); saveResistanceContent(level1,level2,editor.innerHTML); showToast("已保存","success"); } };
-        document.removeEventListener("keydown",ctrlSave); document.addEventListener("keydown",ctrlSave);
-        document.querySelectorAll(".sub-tab").forEach(tab=>tab.addEventListener("click",async(e)=>{ const idx=parseInt(tab.dataset.subIdx); if(idx!==currentActiveSub){ await saveResistanceContent(level1,level2,editor.innerHTML); currentActiveSub=idx; currentActiveSubSub=0; await renderResistanceModule(); } }));
+        if (isAdmin) {
+            document.getElementById("saveResBtn")?.addEventListener("click",async()=>{ await saveResistanceContent(level1,level2,editor.innerHTML); showToast("保存成功","success"); });
+            document.getElementById("insertImgBtn")?.addEventListener("click",()=>{ editor.focus(); insertImagesSorted(editor); });
+            document.getElementById("uploadResFileBtn")?.addEventListener("click",async()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='.doc,.docx,.xls,.xlsx,.pdf,.txt,.ppt,.pptx'; inp.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; const key=prefix+Date.now()+'_'+file.name; await saveAttachment(key,file.name,file.type,file); showToast(`已上传 ${file.name}`,"success"); await refreshAttachments(); }; inp.click(); });
+            document.getElementById("resetResBtn")?.addEventListener("click",async()=>{ if(confirm("重置丢失内容？")){ const def=level2?level2.defaultContent:level1.defaultContent; editor.innerHTML=def; await saveResistanceContent(level1,level2,def); showToast("已重置","info"); } });
+            const ctrlSave=(e)=>{ if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); saveResistanceContent(level1,level2,editor.innerHTML); showToast("已保存","success"); } };
+            document.removeEventListener("keydown",ctrlSave); document.addEventListener("keydown",ctrlSave);
+        }
+        document.querySelectorAll(".sub-tab").forEach(tab=>tab.addEventListener("click",async(e)=>{ const idx=parseInt(tab.dataset.subIdx); if(idx!==currentActiveSub){ if(isAdmin && editor) await saveResistanceContent(level1,level2,editor.innerHTML); currentActiveSub=idx; currentActiveSubSub=0; await renderResistanceModule(); } }));
         if(level1.type==="group"){
-            document.querySelectorAll(".sub-sub-tab").forEach(ss=>ss.addEventListener("click",async(e)=>{ const idx=parseInt(ss.dataset.subsubIdx); if(idx!==currentActiveSubSub){ await saveResistanceContent(level1,level2,editor.innerHTML); currentActiveSubSub=idx; await renderResistanceModule(); } }));
+            document.querySelectorAll(".sub-sub-tab").forEach(ss=>ss.addEventListener("click",async(e)=>{ const idx=parseInt(ss.dataset.subsubIdx); if(idx!==currentActiveSubSub){ if(isAdmin && editor) await saveResistanceContent(level1,level2,editor.innerHTML); currentActiveSubSub=idx; await renderResistanceModule(); } }));
         }
     }
     async function renderNaturalResistance(){
@@ -902,7 +991,13 @@
         let savedHtml=defaultHtml;
         if(db){ const tx=db.transaction([STORE_NATURAL],'readonly'); const store=tx.objectStore(STORE_NATURAL); const req=store.get(key); savedHtml=await new Promise(res=>{ req.onsuccess=()=>res(req.result?req.result.html:defaultHtml); req.onerror=()=>res(defaultHtml); }); }
         const prefix="natural_attach_";
-        const html=`<div class="section-title"><i class="fas fa-table-list"></i> 天然耐药表 · 可编辑区</div><div class="editable-toolbar"><button id="saveNaturalBtn"><i class="fas fa-save"></i> 保存</button><button id="insertNaturalImgBtn"><i class="fas fa-image"></i> 插入图片</button><button id="uploadNaturalFileBtn"><i class="fas fa-upload"></i> 上传附件</button><button id="resetNaturalBtn"><i class="fas fa-undo-alt"></i> 重置</button></div><div id="naturalEditable" class="editable-content" contenteditable="true">${savedHtml}</div><div id="naturalAttachmentContainer" class="attachment-list"></div><div class="save-hint">编辑后保存</div><div class="custom-table-wrapper"><table class="data-table"><thead><tr><th>病原菌</th><th>天然耐药抗生素</th><th>备注</th></tr></thead><tbody><tr><td>肠杆菌科</td><td>青霉素G，糖肽类</td><td>对氨苄西林部分敏感</td></tr>
+        let toolbarHtml = "";
+        if (isAdmin) {
+            toolbarHtml = `<div class="editable-toolbar"><button id="saveNaturalBtn"><i class="fas fa-save"></i> 保存</button><button id="insertNaturalImgBtn"><i class="fas fa-image"></i> 插入图片</button><button id="uploadNaturalFileBtn"><i class="fas fa-upload"></i> 上传附件</button><button id="resetNaturalBtn"><i class="fas fa-undo-alt"></i> 重置</button></div>`;
+        }
+        const editorEditable = isAdmin ? 'true' : 'false';
+        const html=`<div class="section-title"><i class="fas fa-table-list"></i> 天然耐药表 · 可编辑区</div>${toolbarHtml}<div id="naturalEditable" class="editable-content" contenteditable="${editorEditable}">${savedHtml}</div><div id="naturalAttachmentContainer" class="attachment-list"></div><div class="save-hint">${isAdmin ? '编辑后保存' : '只读模式'}</div><div class="custom-table-wrapper"><table class="data-table"><thead><tr><th>病原菌</th><th>天然耐药抗生素</th><th>备注</th></tr></thead><tbody>
+                <tr><td>肠杆菌科</td><td>青霉素G，糖肽类</td><td>对氨苄西林部分敏感</td></tr>
                 <tr><td>铜绿假单胞菌</td><td>替加环素, 磺胺类</td><td>对头孢他啶敏感需验证</td></tr>
                 <tr><td>鲍曼不动杆菌</td><td>氨曲南, 一代头孢</td><td>碳青霉烯类耐药增多</td></tr>
                 <tr><td>嗜麦芽窄食单胞菌</td><td>碳青霉烯类</td><td>治疗可选SMZ-TMP</td></tr>
@@ -914,230 +1009,372 @@
             const div=document.getElementById("naturalAttachmentContainer");
             if(atts.length===0){ div.innerHTML='<div class="attachment-list"><div class="attachment-title">附件</div><div>无</div></div>'; return; }
             let h=`<div class="attachment-list"><div class="attachment-title">附件列表</div>`;
-            for(const a of atts) h+=`<div class="attachment-item"><span class="attachment-name">${escapeHtml(a.name)}</span><div class="attachment-actions"><button class="download-attach" data-key="${a.key}"><i class="fas fa-download"></i></button><button class="delete-attach" data-key="${a.key}"><i class="fas fa-trash-alt"></i></button></div></div>`;
+            for(const a of atts) h+=`<div class="attachment-item"><span class="attachment-name">${escapeHtml(a.name)}</span><div class="attachment-actions">${isAdmin ? `<button class="delete-attach" data-key="${a.key}"><i class="fas fa-trash-alt"></i></button>` : ''}<button class="download-attach" data-key="${a.key}"><i class="fas fa-download"></i></button></div></div>`;
             h+=`</div>`; div.innerHTML=h;
             document.querySelectorAll('#naturalAttachmentContainer .download-attach').forEach(btn=>btn.addEventListener('click',async(e)=>{ const key=btn.getAttribute('data-key'); const tx=db.transaction([STORE_ATTACHMENTS],'readonly'); const store=tx.objectStore(STORE_ATTACHMENTS); const req=store.get(key); req.onsuccess=()=>{ const rec=req.result; if(rec && rec.blob){ const url=URL.createObjectURL(rec.blob); const a=document.createElement('a'); a.href=url; a.download=rec.name; a.click(); URL.revokeObjectURL(url); } }; }));
-            document.querySelectorAll('#naturalAttachmentContainer .delete-attach').forEach(btn=>btn.addEventListener('click',async(e)=>{ if(confirm("删除？")){ await deleteAttachment(btn.getAttribute('data-key')); await refreshAttach(); showToast("已删除","success"); } }));
+            if(isAdmin){
+                document.querySelectorAll('#naturalAttachmentContainer .delete-attach').forEach(btn=>btn.addEventListener('click',async(e)=>{ if(confirm("删除？")){ await deleteAttachment(btn.getAttribute('data-key')); await refreshAttach(); showToast("已删除","success"); } }));
+            }
         }
         await refreshAttach();
-        document.getElementById("saveNaturalBtn")?.addEventListener("click",async()=>{ if(!db) await openDB(); const tx=db.transaction([STORE_NATURAL],'readwrite'); const store=tx.objectStore(STORE_NATURAL); store.put({key,html:editor.innerHTML}); await new Promise(r=>{ tx.oncomplete=r; }); showToast("已保存","success"); });
-        document.getElementById("insertNaturalImgBtn")?.addEventListener("click",()=>{ editor.focus(); insertImagesSorted(editor); });
-        document.getElementById("uploadNaturalFileBtn")?.addEventListener("click",async()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='.doc,.docx,.xls,.xlsx,.pdf,.txt'; inp.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; const key=prefix+Date.now()+'_'+file.name; await saveAttachment(key,file.name,file.type,file); showToast(`已上传 ${file.name}`,"success"); await refreshAttach(); }; inp.click(); });
-        document.getElementById("resetNaturalBtn")?.addEventListener("click",async()=>{ if(confirm("重置？")){ editor.innerHTML=defaultHtml; if(db){ const tx=db.transaction([STORE_NATURAL],'readwrite'); const store=tx.objectStore(STORE_NATURAL); store.put({key,html:defaultHtml}); await new Promise(r=>{ tx.oncomplete=r; }); } showToast("已重置","info"); } });
-        const ctrlNat=(e)=>{ if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); if(db){ const tx=db.transaction([STORE_NATURAL],'readwrite'); const store=tx.objectStore(STORE_NATURAL); store.put({key,html:editor.innerHTML}); } showToast("已保存","success"); } };
-        document.removeEventListener("keydown",ctrlNat); document.addEventListener("keydown",ctrlNat);
+        if(isAdmin){
+            document.getElementById("saveNaturalBtn")?.addEventListener("click",async()=>{ if(!db) await openDB(); const tx=db.transaction([STORE_NATURAL],'readwrite'); const store=tx.objectStore(STORE_NATURAL); store.put({key,html:editor.innerHTML}); await new Promise(r=>{ tx.oncomplete=r; }); showToast("已保存","success"); });
+            document.getElementById("insertNaturalImgBtn")?.addEventListener("click",()=>{ editor.focus(); insertImagesSorted(editor); });
+            document.getElementById("uploadNaturalFileBtn")?.addEventListener("click",async()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='.doc,.docx,.xls,.xlsx,.pdf,.txt'; inp.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; const key=prefix+Date.now()+'_'+file.name; await saveAttachment(key,file.name,file.type,file); showToast(`已上传 ${file.name}`,"success"); await refreshAttach(); }; inp.click(); });
+            document.getElementById("resetNaturalBtn")?.addEventListener("click",async()=>{ if(confirm("重置？")){ editor.innerHTML=defaultHtml; if(db){ const tx=db.transaction([STORE_NATURAL],'readwrite'); const store=tx.objectStore(STORE_NATURAL); store.put({key,html:defaultHtml}); await new Promise(r=>{ tx.oncomplete=r; }); } showToast("已重置","info"); } });
+            const ctrlNat=(e)=>{ if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); if(db){ const tx=db.transaction([STORE_NATURAL],'readwrite'); const store=tx.objectStore(STORE_NATURAL); store.put({key,html:editor.innerHTML}); } showToast("已保存","success"); } };
+            document.removeEventListener("keydown",ctrlNat); document.addEventListener("keydown",ctrlNat);
+        }
     }
     
-    // ======================= 全新工作台总览 =======================
+    // ======================= 工作台总览（含全部数据备份/恢复按钮） =======================
     function renderDashboard() {
-    const today = new Date().toLocaleDateString('zh-CN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    const resistancePreview = { CRE: "5.2%", MRSA: "34.5%", CRPA: "19.7%", CRAB: "62.3%" };
-    const quickLinks = [
-        { name: "新增细菌", icon: "fa-bacteria", nav: "bacteria", action: "addBacteria" },
-        { name: "导入Excel", icon: "fa-file-excel", nav: "bacteria", action: "import" },
-        { name: "耐药数据", icon: "fa-chart-line", nav: "resistance_data" },
-        { name: "检验规程", icon: "fa-clinic-medical", nav: "protocol" },
-        { name: "质控标准", icon: "fa-chart-line", nav: "qc" }
-    ];
-    return `
-        <div style="display: flex; flex-direction: column; gap: 24px;">
-            <div style="background: linear-gradient(135deg, #1f5575 0%, #2c9bcf 100%); color: white; padding: 12px 20px; border-radius: 28px; display: flex; justify-content: space-between; align-items: center;">
-                <span><i class="fas fa-calendar-alt"></i> ${today}</span>
-                <span><i class="fas fa-flask"></i> 临床微生物检验科</span>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 24px;">
-                <!-- 科室公告（可添加/删除） -->
-                <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
-                    <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-bullhorn"></i> 科室公告</h3>
-                    <div id="noticeList"></div>
-                    <div style="margin-top:12px; display:flex; gap:8px;">
-                        <input type="text" id="newNoticeInput" placeholder="新公告..." style="flex:1; padding:8px 12px; border:1px solid #dce5ec; border-radius:40px; font-size:0.8rem; outline:none;">
-                        <button id="addNoticeBtn" style="background:#eef2f6; border:none; border-radius:40px; padding:8px 16px; cursor:pointer;"><i class="fas fa-plus"></i> 添加</button>
+        const today = new Date().toLocaleDateString('zh-CN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const resistancePreview = { CRE: "5.2%", MRSA: "34.5%", CRPA: "19.7%", CRAB: "62.3%" };
+        const quickLinks = [
+            { name: "新增细菌", icon: "fa-bacteria", nav: "bacteria", action: "addBacteria" },
+            { name: "导入Excel", icon: "fa-file-excel", nav: "bacteria", action: "import" },
+            { name: "耐药数据", icon: "fa-chart-line", nav: "resistance_data" },
+            { name: "检验规程", icon: "fa-clinic-medical", nav: "protocol" },
+            { name: "质控标准", icon: "fa-chart-line", nav: "qc" }
+        ];
+        return `
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div style="background: linear-gradient(135deg, #1f5575 0%, #2c9bcf 100%); color: white; padding: 12px 20px; border-radius: 28px; display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fas fa-calendar-alt"></i> ${today}</span>
+                    <span><i class="fas fa-flask"></i> 临床微生物检验科</span>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+                    <!-- 科室公告 -->
+                    <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
+                        <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-bullhorn"></i> 科室公告</h3>
+                        <div id="noticeList"></div>
+                        ${isAdmin ? `<div style="margin-top:12px; display:flex; gap:8px;">
+                            <input type="text" id="newNoticeInput" placeholder="新公告..." style="flex:1; padding:8px 12px; border:1px solid #dce5ec; border-radius:40px; font-size:0.8rem; outline:none;">
+                            <button id="addNoticeBtn" style="background:#eef2f6; border:none; border-radius:40px; padding:8px 16px; cursor:pointer;"><i class="fas fa-plus"></i> 添加</button>
+                        </div>` : ''}
+                    </div>
+                    <!-- 待办任务 -->
+                    <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
+                        <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-check-circle"></i> 待办任务</h3>
+                        <div id="taskList"></div>
+                        ${isAdmin ? `<div style="margin-top:12px; display:flex; gap:8px;">
+                            <input type="text" id="newTaskInput" placeholder="新任务..." style="flex:1; padding:8px 12px; border:1px solid #dce5ec; border-radius:40px; font-size:0.8rem; outline:none;">
+                            <button id="addTaskBtn" style="background:#eef2f6; border:none; border-radius:40px; padding:8px 16px; cursor:pointer;"><i class="fas fa-plus"></i> 添加</button>
+                        </div>` : ''}
+                    </div>
+                    <!-- 耐药数据速览 + 备份/恢复 -->
+                    <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
+                        <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-chart-line"></i> 耐药数据速览</h3>
+                        ${Object.entries(resistancePreview).map(([k,v]) => `<div style="display:flex; justify-content:space-between; background:#f8fafc; padding:10px 12px; border-radius:20px; margin-bottom:12px;"><span style="font-weight:600;">${k} 检出率</span><span style="font-family:monospace; font-size:1.1rem; font-weight:600; color:#2c9bcf;">${v}</span></div>`).join('')}
+                        <div id="quickLinks" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:12px;">${quickLinks.map(link => `<div class="quick-link-item" data-nav="${link.nav}" data-action="${link.action||''}" style="background:#f0f4f9; border-radius:40px; padding:8px 16px; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><i class="fas ${link.icon}"></i> ${link.name}</div>`).join('')}</div>
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button id="backupAllData" style="background:#2c9bcf; color:white; border:none; border-radius:40px; padding:6px 12px; cursor:pointer;"><i class="fas fa-database"></i> 备份全部数据</button>
+                            ${isAdmin ? `<button id="restoreAllData" style="background:#5f8bb3; color:white; border:none; border-radius:40px; padding:6px 12px; cursor:pointer;"><i class="fas fa-upload"></i> 恢复全部数据</button>
+                            <input type="file" id="restoreFileInput" accept=".json" style="display:none;">` : ''}
+                        </div>
                     </div>
                 </div>
-                <!-- 待办任务（可添加/删除） -->
-                <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
-                    <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-check-circle"></i> 待办任务</h3>
-                    <div id="taskList"></div>
-                    <div style="margin-top:12px; display:flex; gap:8px;">
-                        <input type="text" id="newTaskInput" placeholder="新任务..." style="flex:1; padding:8px 12px; border:1px solid #dce5ec; border-radius:40px; font-size:0.8rem; outline:none;">
-                        <button id="addTaskBtn" style="background:#eef2f6; border:none; border-radius:40px; padding:8px 16px; cursor:pointer;"><i class="fas fa-plus"></i> 添加</button>
-                    </div>
-                </div>
-                <!-- 耐药数据速览 -->
-                <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
-                    <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-chart-line"></i> 耐药数据速览</h3>
-                    ${Object.entries(resistancePreview).map(([k,v]) => `<div style="display:flex; justify-content:space-between; background:#f8fafc; padding:10px 12px; border-radius:20px; margin-bottom:12px;"><span style="font-weight:600;">${k} 检出率</span><span style="font-family:monospace; font-size:1.1rem; font-weight:600; color:#2c9bcf;">${v}</span></div>`).join('')}
-                    <div id="quickLinks" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:12px;">${quickLinks.map(link => `<div class="quick-link-item" data-nav="${link.nav}" data-action="${link.action||''}" style="background:#f0f4f9; border-radius:40px; padding:8px 16px; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><i class="fas ${link.icon}"></i> ${link.name}</div>`).join('')}</div>
-                </div>
             </div>
-        </div>
-    `;
-}
+        `;
+    }
     
-    // 绑定工作台事件（任务保存/加载、快捷跳转）
-    function bindDashboardEvents() {
-    const NOTICE_STORAGE_KEY = 'dashboard_notices';
-    const TASK_STORAGE_KEY = 'dashboard_tasks';
+    // ======================= 数据备份与恢复 =======================
+    async function backupAllData() {
+        if (!db) await openDB();
+        const backup = {};
 
-    // 公告操作
-    function saveNotices() {
-        const notices = [];
-        document.querySelectorAll('#noticeList .notice-item').forEach(item => {
-            const textSpan = item.querySelector('.notice-text');
-            const timeSpan = item.querySelector('.notice-time');
-            notices.push({ text: textSpan.innerText, time: timeSpan.innerText });
-        });
-        localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
-    }
-    function loadNotices() {
-        const saved = localStorage.getItem(NOTICE_STORAGE_KEY);
-        const noticeContainer = document.getElementById('noticeList');
-        if (!noticeContainer) return;
-        noticeContainer.innerHTML = '';
-        let notices = saved ? JSON.parse(saved) : [
-            { text: "📢 2025年CLSI M100文件已更新，请查阅", time: "昨天" },
-            { text: "🔔 本月院感监测报告已上传至『检验规程』", time: "前天" },
-            { text: "⚠️ 质控中心提醒：碳青霉烯酶表型检测注意质量控制", time: "3天前" }
-        ];
-        notices.forEach((n, idx) => {
-            const div = document.createElement('div');
-            div.className = 'notice-item';
-            div.style.padding = '10px 0';
-            div.style.borderBottom = '1px solid #eef2f6';
-            div.style.display = 'flex';
-            div.style.justifyContent = 'space-between';
-            div.style.alignItems = 'center';
-            div.innerHTML = `
-                <div>
-                    <span class="notice-text" style="font-size:0.85rem;">${escapeHtml(n.text)}</span>
-                    <span class="notice-time" style="font-size:0.7rem; color:#8aa9c4; margin-left:8px;">${escapeHtml(n.time)}</span>
-                </div>
-                <button class="delete-notice" data-idx="${idx}" style="background:none; border:none; color:#8aa9c4; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
-            `;
-            noticeContainer.appendChild(div);
-        });
-        // 绑定删除事件
-        document.querySelectorAll('.delete-notice').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(btn.getAttribute('data-idx'));
-                let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
-                notices.splice(idx, 1);
-                localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
-                loadNotices(); // 重新渲染
+        backup.bacteria = await getAllBacteria();
+        backup.fungi = await getAllFungi();
+        backup.projects = await getAllProjects();
+        
+        const resistanceContents = await getAllResistanceContents();
+        backup.resistanceContents = resistanceContents;
+        
+        const allAttachments = [];
+        const attachmentPrefixes = ['attach_', 'natural_attach_'];
+        for (const prefix of attachmentPrefixes) {
+            const range = IDBKeyRange.bound(prefix, prefix + '\uffff');
+            const tx = db.transaction([STORE_ATTACHMENTS], 'readonly');
+            const store = tx.objectStore(STORE_ATTACHMENTS);
+            const request = store.getAll(range);
+            const attachments = await new Promise(resolve => { request.onsuccess = () => resolve(request.result || []); });
+            allAttachments.push(...attachments);
+        }
+        backup.attachments = [];
+        for (const att of allAttachments) {
+            const blob = att.blob;
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
             });
-        });
-    }
-    // 添加公告
-    const addNoticeBtn = document.getElementById('addNoticeBtn');
-    const noticeInput = document.getElementById('newNoticeInput');
-    if (addNoticeBtn) {
-        addNoticeBtn.addEventListener('click', () => {
-            const text = noticeInput.value.trim();
-            if (text) {
-                let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
-                const now = new Date();
-                const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
-                notices.unshift({ text, time: timeStr });
-                localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
-                noticeInput.value = '';
-                loadNotices();
-                showToast('公告已添加', 'success');
-            }
-        });
-    }
-
-    // 任务操作（保留原有，增加删除按钮）
-    function saveTasks() {
-        const tasks = [];
-        document.querySelectorAll('#taskList .task-item').forEach(item => {
-            const checkbox = item.querySelector('input');
-            const label = item.querySelector('label');
-            tasks.push({ text: label.innerText, done: checkbox.checked });
-        });
-        localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
-    }
-    function loadTasks() {
-        const saved = localStorage.getItem(TASK_STORAGE_KEY);
-        const taskContainer = document.getElementById('taskList');
-        if (!taskContainer) return;
-        taskContainer.innerHTML = '';
-        let tasks = saved ? JSON.parse(saved) : [
-            { text: "完成本周耐药数据汇总", done: false },
-            { text: "更新细菌目录库中的MRSA药敏信息", done: false }
-        ];
-        tasks.forEach((t, idx) => {
-            const div = document.createElement('div');
-            div.className = 'task-item';
-            div.style.padding = '10px 0';
-            div.style.borderBottom = '1px solid #eef2f6';
-            div.style.display = 'flex';
-            div.style.justifyContent = 'space-between';
-            div.style.alignItems = 'center';
-            div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="task_${idx}" ${t.done ? 'checked' : ''} style="width:18px;height:18px;">
-                    <label for="task_${idx}" style="font-size:0.85rem; ${t.done ? 'text-decoration:line-through; color:#8aa9c4;' : ''}">${escapeHtml(t.text)}</label>
-                </div>
-                <button class="delete-task" data-idx="${idx}" style="background:none; border:none; color:#8aa9c4; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
-            `;
-            taskContainer.appendChild(div);
-        });
-        // 绑定checkbox变化
-        document.querySelectorAll('#taskList input[type="checkbox"]').forEach(cb => {
-            cb.addEventListener('change', () => saveTasks());
-        });
-        // 绑定删除任务
-        document.querySelectorAll('.delete-task').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(btn.getAttribute('data-idx'));
-                let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
-                tasks.splice(idx, 1);
-                localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
-                loadTasks();
+            backup.attachments.push({
+                key: att.key,
+                name: att.name,
+                mime: att.type,
+                base64: base64,
+                size: att.size,
+                uploadTime: att.uploadTime
             });
-        });
-    }
-    // 添加任务
-    const addTaskBtn = document.getElementById('addTaskBtn');
-    const taskInput = document.getElementById('newTaskInput');
-    if (addTaskBtn) {
-        addTaskBtn.addEventListener('click', () => {
-            const text = taskInput.value.trim();
-            if (text) {
-                let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
-                tasks.push({ text, done: false });
-                localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
-                taskInput.value = '';
-                loadTasks();
-                showToast('任务已添加', 'success');
-            }
-        });
+        }
+        
+        const naturalKey = "natural_resistance_main";
+        const naturalTx = db.transaction([STORE_NATURAL], 'readonly');
+        const naturalStore = naturalTx.objectStore(STORE_NATURAL);
+        const naturalReq = naturalStore.get(naturalKey);
+        const naturalContent = await new Promise(resolve => { naturalReq.onsuccess = () => resolve(naturalReq.result?.html || ''); });
+        backup.naturalResistance = naturalContent;
+        
+        backup.dashboardNotices = localStorage.getItem('dashboard_notices') || '[]';
+        backup.dashboardTasks = localStorage.getItem('dashboard_tasks') || '[]';
+        
+        const jsonStr = JSON.stringify(backup, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `micro_lab_full_backup_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('全部数据已备份', 'success');
     }
 
-    // 加载初始数据
-    loadNotices();
-    loadTasks();
-
-    // 快捷链接跳转（保持不变）
-    document.querySelectorAll('.quick-link-item').forEach(link => {
-        link.addEventListener('click', () => {
-            const nav = link.getAttribute('data-nav');
-            const action = link.getAttribute('data-action');
-            if (nav) {
-                const navItem = document.querySelector(`.nav-item[data-nav="${nav}"]`);
-                if (navItem) navItem.click();
-                if (nav === 'bacteria' && action === 'addBacteria') {
-                    setTimeout(() => { document.getElementById('addBacteriaBtn')?.click(); }, 100);
-                } else if (nav === 'bacteria' && action === 'import') {
-                    setTimeout(() => { document.getElementById('importBacteriaBtn')?.click(); }, 100);
+    async function restoreAllData() {
+        if (!isAdmin) { showToast('无权限', 'error'); return; }
+        const fileInput = document.getElementById('restoreFileInput');
+        fileInput.click();
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const loader = document.createElement('div');
+            loader.className = 'loading-overlay';
+            loader.innerHTML = '<div><i class="fas fa-spinner fa-pulse"></i> 恢复数据中，请稍候...</div>';
+            document.body.appendChild(loader);
+            try {
+                const text = await file.text();
+                const backup = JSON.parse(text);
+                
+                if (backup.bacteria) {
+                    for (const b of backup.bacteria) {
+                        await saveBacteriaItem(b);
+                    }
                 }
+                if (backup.fungi) {
+                    for (const f of backup.fungi) {
+                        await saveFungusItem(f);
+                    }
+                }
+                if (backup.projects) {
+                    for (const p of backup.projects) {
+                        await saveProject(p);
+                    }
+                }
+                if (backup.resistanceContents) {
+                    for (const rc of backup.resistanceContents) {
+                        const tx = db.transaction([STORE_RESISTANCE], 'readwrite');
+                        const store = tx.objectStore(STORE_RESISTANCE);
+                        store.put({ key: rc.key, html: rc.html });
+                        await new Promise(resolve => { tx.oncomplete = resolve; });
+                    }
+                }
+                if (backup.attachments) {
+                    for (const att of backup.attachments) {
+                        const blob = await (await fetch(att.base64)).blob();
+                        await saveAttachment(att.key, att.name, att.mime, blob);
+                    }
+                }
+                if (backup.naturalResistance !== undefined) {
+                    const tx = db.transaction([STORE_NATURAL], 'readwrite');
+                    const store = tx.objectStore(STORE_NATURAL);
+                    store.put({ key: "natural_resistance_main", html: backup.naturalResistance });
+                    await new Promise(resolve => { tx.oncomplete = resolve; });
+                }
+                if (backup.dashboardNotices) localStorage.setItem('dashboard_notices', backup.dashboardNotices);
+                if (backup.dashboardTasks) localStorage.setItem('dashboard_tasks', backup.dashboardTasks);
+                
+                showToast('全部数据恢复成功！请刷新页面查看。', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } catch (err) {
+                console.error(err);
+                alert('恢复失败：文件格式不正确或数据损坏');
+            } finally {
+                loader.remove();
             }
+        };
+    }
+
+    // 绑定工作台事件（公告/任务的增删，以及备份/恢复按钮）
+    function bindDashboardEvents() {
+        const NOTICE_STORAGE_KEY = 'dashboard_notices';
+        const TASK_STORAGE_KEY = 'dashboard_tasks';
+
+        // 公告操作（仅管理员可增删）
+        function saveNotices() {
+            const notices = [];
+            document.querySelectorAll('#noticeList .notice-item').forEach(item => {
+                const textSpan = item.querySelector('.notice-text');
+                const timeSpan = item.querySelector('.notice-time');
+                notices.push({ text: textSpan.innerText, time: timeSpan.innerText });
+            });
+            localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
+        }
+        function loadNotices() {
+            const saved = localStorage.getItem(NOTICE_STORAGE_KEY);
+            const noticeContainer = document.getElementById('noticeList');
+            if (!noticeContainer) return;
+            noticeContainer.innerHTML = '';
+            let notices = saved ? JSON.parse(saved) : [
+                { text: "📢 2025年CLSI M100文件已更新，请查阅", time: "昨天" },
+                { text: "🔔 本月院感监测报告已上传至『检验规程』", time: "前天" },
+                { text: "⚠️ 质控中心提醒：碳青霉烯酶表型检测注意质量控制", time: "3天前" }
+            ];
+            notices.forEach((n, idx) => {
+                const div = document.createElement('div');
+                div.className = 'notice-item';
+                div.style.padding = '10px 0';
+                div.style.borderBottom = '1px solid #eef2f6';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.innerHTML = `
+                    <div>
+                        <span class="notice-text" style="font-size:0.85rem;">${escapeHtml(n.text)}</span>
+                        <span class="notice-time" style="font-size:0.7rem; color:#8aa9c4; margin-left:8px;">${escapeHtml(n.time)}</span>
+                    </div>
+                    ${isAdmin ? `<button class="delete-notice" data-idx="${idx}" style="background:none; border:none; color:#8aa9c4; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
+                `;
+                noticeContainer.appendChild(div);
+            });
+            if (isAdmin) {
+                document.querySelectorAll('.delete-notice').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
+                        notices.splice(idx, 1);
+                        localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
+                        loadNotices();
+                    });
+                });
+            }
+        }
+        if (isAdmin) {
+            const addNoticeBtn = document.getElementById('addNoticeBtn');
+            const noticeInput = document.getElementById('newNoticeInput');
+            if (addNoticeBtn) {
+                addNoticeBtn.addEventListener('click', () => {
+                    const text = noticeInput.value.trim();
+                    if (text) {
+                        let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
+                        const now = new Date();
+                        const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+                        notices.unshift({ text, time: timeStr });
+                        localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
+                        noticeInput.value = '';
+                        loadNotices();
+                        showToast('公告已添加', 'success');
+                    }
+                });
+            }
+        }
+
+        // 任务操作
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('#taskList .task-item').forEach(item => {
+                const checkbox = item.querySelector('input');
+                const label = item.querySelector('label');
+                tasks.push({ text: label.innerText, done: checkbox.checked });
+            });
+            localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+        }
+        function loadTasks() {
+            const saved = localStorage.getItem(TASK_STORAGE_KEY);
+            const taskContainer = document.getElementById('taskList');
+            if (!taskContainer) return;
+            taskContainer.innerHTML = '';
+            let tasks = saved ? JSON.parse(saved) : [
+                { text: "完成本周耐药数据汇总", done: false },
+                { text: "更新细菌目录库中的MRSA药敏信息", done: false }
+            ];
+            tasks.forEach((t, idx) => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.style.padding = '10px 0';
+                div.style.borderBottom = '1px solid #eef2f6';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="task_${idx}" ${t.done ? 'checked' : ''} style="width:18px;height:18px;">
+                        <label for="task_${idx}" style="font-size:0.85rem; ${t.done ? 'text-decoration:line-through; color:#8aa9c4;' : ''}">${escapeHtml(t.text)}</label>
+                    </div>
+                    ${isAdmin ? `<button class="delete-task" data-idx="${idx}" style="background:none; border:none; color:#8aa9c4; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
+                `;
+                taskContainer.appendChild(div);
+            });
+            document.querySelectorAll('#taskList input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', () => saveTasks());
+            });
+            if (isAdmin) {
+                document.querySelectorAll('.delete-task').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
+                        tasks.splice(idx, 1);
+                        localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+                        loadTasks();
+                    });
+                });
+            }
+        }
+        if (isAdmin) {
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const taskInput = document.getElementById('newTaskInput');
+            if (addTaskBtn) {
+                addTaskBtn.addEventListener('click', () => {
+                    const text = taskInput.value.trim();
+                    if (text) {
+                        let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
+                        tasks.push({ text, done: false });
+                        localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+                        taskInput.value = '';
+                        loadTasks();
+                        showToast('任务已添加', 'success');
+                    }
+                });
+            }
+        }
+
+        // 备份/恢复按钮
+        document.getElementById('backupAllData')?.addEventListener('click', backupAllData);
+        if (isAdmin) {
+            document.getElementById('restoreAllData')?.addEventListener('click', restoreAllData);
+        }
+
+        // 快捷链接跳转（只读模式也能跳转，但需注意如果点击新增细菌等，需要管理员权限才能看到按钮，不会有误操作）
+        document.querySelectorAll('.quick-link-item').forEach(link => {
+            link.addEventListener('click', () => {
+                const nav = link.getAttribute('data-nav');
+                const action = link.getAttribute('data-action');
+                if (nav) {
+                    const navItem = document.querySelector(`.nav-item[data-nav="${nav}"]`);
+                    if (navItem) navItem.click();
+                    if (isAdmin && nav === 'bacteria' && action === 'addBacteria') {
+                        setTimeout(() => { document.getElementById('addBacteriaBtn')?.click(); }, 100);
+                    } else if (isAdmin && nav === 'bacteria' && action === 'import') {
+                        setTimeout(() => { document.getElementById('importBacteriaBtn')?.click(); }, 100);
+                    }
+                }
+            });
         });
-    });
-}
+
+        loadNotices();
+        loadTasks();
+    }
     
-    // 全局搜索
+    // ======================= 全局搜索 =======================
     async function globalSearch(kw){
         if(!kw.trim()) return {bacteria:[],fungi:[],projects:[],resistance:[]};
         const lower=kw.trim().toLowerCase();
@@ -1178,6 +1415,19 @@
         else if(currentNav==='protocol') await renderFileManager('protocol', '检验规程 / SOP');
         else if(currentNav==='qc') await renderFileManager('qc', '质控标准');
         else attachDirChipEvents();
+        
+        // 根据管理员状态显示/隐藏顶部按钮
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        if (adminLoginBtn && adminLogoutBtn) {
+            if (isAdmin) {
+                adminLoginBtn.style.display = 'none';
+                adminLogoutBtn.style.display = 'inline-block';
+            } else {
+                adminLoginBtn.style.display = 'inline-block';
+                adminLogoutBtn.style.display = 'none';
+            }
+        }
     }
     function attachDirChipEvents(){
         document.querySelectorAll('.dir-chip').forEach(chip=>{
@@ -1232,11 +1482,29 @@
     
     async function init(){
         await openDB();
+        initAdminStatus();
+        // 初始化默认数据（仅当数据库为空时）
         let bacteria=await getAllBacteria(); if(bacteria.length===0){ await saveBacteriaItem({name:"金黄色葡萄球菌",englishName:"Staphylococcus aureus",characteristics:"革兰阳性球菌",clinical:"皮肤软组织感染",susceptibility:"MRSA需万古霉素"}); await saveBacteriaItem({name:"大肠埃希菌",englishName:"Escherichia coli",characteristics:"革兰阴性杆菌",clinical:"尿路感染",susceptibility:"ESBL菌株碳青霉烯敏感"}); }
         let fungi=await getAllFungi(); if(fungi.length===0){ await saveFungusItem({name:"白念珠菌",englishName:"Candida albicans",characteristics:"酵母样真菌",clinical:"口腔、阴道感染",susceptibility:"氟康唑敏感"}); }
         addModalsToBody();
         bindNavEvents();
         bindSearchEvents();
+        
+        // 绑定管理员按钮事件
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        if (adminLoginBtn) {
+            adminLoginBtn.addEventListener('click', () => {
+                const pwd = prompt('请输入管理员密码');
+                if (pwd) adminLogin(pwd);
+            });
+        }
+        if (adminLogoutBtn) {
+            adminLogoutBtn.addEventListener('click', () => {
+                adminLogout();
+            });
+        }
+        
         currentNav="dashboard";
         updateActiveNav("dashboard");
         await renderMain();
