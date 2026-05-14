@@ -87,10 +87,10 @@
         }
         .content-pane { padding: 24px 28px; }
         
-        /* 卡片网格布局 */
+        /* 细菌/真菌目录库 - 强制多列网格布局 */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
             margin-top: 16px;
         }
@@ -160,10 +160,12 @@
         .modal-content {
             background: white;
             border-radius: 32px;
-            width: 500px;
+            width: 600px;
             max-width: 90%;
             padding: 24px;
             box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-content h3 { margin-bottom: 20px; color: #1f5575; }
         .modal-content input, .modal-content textarea {
@@ -177,6 +179,7 @@
             outline: none;
         }
         .modal-content textarea { min-height: 60px; resize: vertical; }
+        .modal-content input:focus, .modal-content textarea:focus { border-color: #2c9bcf; }
         .modal-actions {
             display: flex;
             justify-content: flex-end;
@@ -201,7 +204,6 @@
             padding-left: 16px;
         }
         .no-result { text-align: center; padding: 48px 20px; background: white; border-radius: 40px; color: #8aa9c4; }
-        .search-engine-directory { background: #ffffffea; border-radius: 28px; padding: 6px 12px 18px; margin-bottom: 28px; border: 1px solid #e2edf5; }
         .dir-grid { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px; }
         .dir-chip { background: #eff6fc; border-radius: 40px; padding: 8px 18px; font-size: 0.8rem; font-weight: 500; color: #1b6c8f; cursor: pointer; border: 1px solid #dbe9f2; }
         
@@ -345,6 +347,211 @@
             font-size: 1.2rem;
             backdrop-filter: blur(3px);
         }
+        
+        /* 微生物项目垂直列表表格 */
+        .project-list {
+            margin-top: 20px;
+            border: 1px solid #e2edf2;
+            border-radius: 24px;
+            background: white;
+            overflow-x: auto;
+        }
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .project-table th {
+            background: #f8fafc;
+            padding: 12px 8px;
+            border-bottom: 1px solid #e2edf2;
+            text-align: left;
+            font-weight: 600;
+            color: #1f5575;
+        }
+        .project-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #eef2f6;
+            vertical-align: top;
+            white-space: pre-line;
+        }
+        .project-table tr:hover { background: #fafcff; }
+        .project-actions {
+            white-space: nowrap;
+        }
+        .project-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 0 4px;
+            color: #8aa9c4;
+        }
+        .project-actions button:hover { color: #2c9bcf; }
+        
+        /* 工作台卡片样式 */
+        .dashboard-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-top: 16px;
+        }
+        .card {
+            flex: 1;
+            min-width: 280px;
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            border: 1px solid #e9f0f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            font-size: 1rem;
+            color: #1f5575;
+            border-left: 4px solid #2c9bcf;
+            padding-left: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notice-item, .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f6;
+        }
+        .notice-text {
+            font-size: 0.85rem;
+            color: #2c4c6e;
+        }
+        .notice-time {
+            font-size: 0.7rem;
+            color: #8aa9c4;
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+        .task-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .task-check input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .task-check label {
+            font-size: 0.85rem;
+            color: #2c4c6e;
+            cursor: pointer;
+        }
+        .task-check input:checked + label {
+            text-decoration: line-through;
+            color: #8aa9c4;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #8aa9c4;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0 4px;
+        }
+        .delete-btn:hover {
+            color: #c0392b;
+        }
+        .add-area {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .add-area input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #dce5ec;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .add-area input:focus {
+            border-color: #2c9bcf;
+        }
+        .add-area button {
+            background: #eef2f6;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #2c5a7a;
+        }
+        .add-area button:hover {
+            background: #d9e4ec;
+        }
+        .resistance-item {
+            display: flex;
+            justify-content: space-between;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+        .resistance-name {
+            font-weight: 600;
+            color: #1f5575;
+        }
+        .resistance-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c9bcf;
+        }
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0 20px;
+        }
+        .quick-link {
+            background: #f0f4f9;
+            border-radius: 40px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.1s;
+        }
+        .quick-link:hover {
+            background: #e1f0fa;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn-backup, .btn-restore {
+            background: #2c9bcf;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .btn-restore {
+            background: #5f8bb3;
+        }
+        .btn-backup:hover, .btn-restore:hover {
+            opacity: 0.9;
+        }
+        
         @media (max-width: 760px) {
             .sidebar { width: 80px; min-width: 80px; }
             .sidebar .logo-area h2, .logo-area p, .nav-item span, .sidebar-footer { display: none; }
@@ -352,12 +559,14 @@
             .nav-item i { margin: 0; font-size: 1.5rem; }
             .top-bar { flex-direction: column; align-items: stretch; }
             .content-pane { padding: 16px; }
-            .card-grid { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: 1fr; } /* 手机版单列 */
             .file-list-header { display: none; }
             .file-list-item { flex-direction: column; align-items: flex-start; gap: 8px; }
             .file-info { width: 100%; }
             .file-actions { width: 100%; justify-content: flex-start; margin-top: 8px; }
-            .admin-buttons { order: -1; margin-bottom: 8px; }
+            .project-table th, .project-table td { padding: 8px 4px; }
+            .project-table { font-size: 0.75rem; }
+            .dashboard-cards { flex-direction: column; }
         }
     </style>
 </head>
@@ -379,7 +588,7 @@
             <div class="nav-item" data-nav="protocol"><i class="fas fa-clinic-medical"></i> <span>检验规程 / SOP</span></div>
             <div class="nav-item" data-nav="qc"><i class="fas fa-chart-line"></i> <span>质控标准</span></div>
         </div>
-        <div class="sidebar-footer"><i class="fas fa-database"></i> 全功能版 · 管理员登录后可编辑</div>
+        <div class="sidebar-footer"><i class="fas fa-database"></i> 全功能版 · 管理员可编辑</div>
     </div>
 
     <div class="main-content">
@@ -389,7 +598,7 @@
                 <input type="text" id="globalSearchInput" placeholder="搜索菌种、真菌、项目、文件..." autocomplete="off">
                 <button id="clearSearchBtn"><i class="fas fa-times-circle"></i></button>
             </div>
-            <div class="badge-tips"><i class="fas fa-file-excel"></i> 细菌/真菌支持Excel批量导入</div>
+            <div class="badge-tips"><i class="fas fa-file-excel"></i> 支持Excel批量导入 | 管理员登录后可编辑</div>
             <div class="admin-buttons">
                 <button id="adminLoginBtn"><i class="fas fa-user-shield"></i> 管理员</button>
                 <button id="adminLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i> 退出</button>
@@ -402,9 +611,7 @@
 <script>
     // ======================= 管理员权限控制 =======================
     let isAdmin = false;
-    const ADMIN_PASSWORD = 'admin123';  // 可自行修改密码
-
-    function checkAdmin() { return isAdmin; }
+    const ADMIN_PASSWORD = 'admin123';
     function adminLogin(password) {
         if (password === ADMIN_PASSWORD) {
             isAdmin = true;
@@ -510,7 +717,7 @@
         });
     }
 
-    // ======================= 文件管理器渲染（垂直列表布局） =======================
+    // ======================= 文件管理器渲染 =======================
     async function renderFileManager(moduleKey, moduleTitle) {
         const container = document.getElementById("dynamicContent");
         if(!container) return;
@@ -602,7 +809,6 @@
             });
         }
         
-        // 下载按钮始终可用
         document.querySelectorAll('.download-file').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
@@ -626,7 +832,7 @@
         });
     }
 
-    // ======================= 细菌/真菌/项目模块 =======================
+    // ======================= 细菌/真菌模块 =======================
     async function getAllBacteria() { if(!db) await openDB(); const tx=db.transaction([STORE_BACTERIA],'readonly'); const store=tx.objectStore(STORE_BACTERIA); return new Promise(res=>{ const req=store.getAll(); req.onsuccess=()=>res(req.result||[]); req.onerror=()=>res([]); }); }
     async function saveBacteriaItem(item) { if(!db) await openDB(); const tx=db.transaction([STORE_BACTERIA],'readwrite'); const store=tx.objectStore(STORE_BACTERIA); store.put(item); return new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
     async function deleteBacteriaItem(id) { if(!db) await openDB(); const tx=db.transaction([STORE_BACTERIA],'readwrite'); const store=tx.objectStore(STORE_BACTERIA); store.delete(id); return new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
@@ -637,7 +843,7 @@
     async function saveProject(item) { if(!db) await openDB(); const tx=db.transaction([STORE_PROJECTS],'readwrite'); const store=tx.objectStore(STORE_PROJECTS); store.put(item); return new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
     async function deleteProject(id) { if(!db) await openDB(); const tx=db.transaction([STORE_PROJECTS],'readwrite'); const store=tx.objectStore(STORE_PROJECTS); store.delete(id); return new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
     
-    // 导入细菌Excel（仅管理员可用，但函数本身需保留）
+    // 导入细菌/真菌Excel（仅管理员）
     async function importBacteriaExcel() {
         if (!isAdmin) { showToast('无权限', 'error'); return; }
         const input = document.createElement('input');
@@ -735,7 +941,6 @@
         input.click();
     }
     
-    // 细菌/真菌模块渲染
     async function renderBacteriaModule(){
         const items = await getAllBacteria();
         let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
@@ -805,56 +1010,245 @@
         }
     }
     
-    // 微生物项目模块
+    // ======================= 微生物项目模块 =======================
+    let currentProjectItem = null;
+    function showProjectForm(item=null){
+        currentProjectItem = item;
+        const modal = document.getElementById('projectModal');
+        document.getElementById('projectModalTitle').innerText = item ? '编辑项目' : '新增项目';
+        document.getElementById('projectMedicalCode').value = item?.medicalCode || '';
+        document.getElementById('projectName').value = item?.name || '';
+        document.getElementById('projectHospitalRemark').value = item?.hospitalRemark || '';
+        document.getElementById('projectShortCode').value = item?.shortCode || '';
+        document.getElementById('projectPrice').value = item?.price || '';
+        document.getElementById('projectDetail').value = item?.detail || '';
+        document.getElementById('projectReportTime').value = item?.reportTime || '';
+        modal.classList.add('active');
+    }
+    function closeProjectModal(){
+        document.getElementById('projectModal').classList.remove('active');
+        currentProjectItem = null;
+    }
+    async function saveProjectModal(){
+        const medicalCode = document.getElementById('projectMedicalCode').value.trim();
+        const name = document.getElementById('projectName').value.trim();
+        if(!name){ alert('请填写项目名称'); return; }
+        const hospitalRemark = document.getElementById('projectHospitalRemark').value.trim();
+        const shortCode = document.getElementById('projectShortCode').value.trim();
+        const price = document.getElementById('projectPrice').value.trim();
+        const detail = document.getElementById('projectDetail').value;
+        const reportTime = document.getElementById('projectReportTime').value.trim();
+        const item = { medicalCode, name, hospitalRemark, shortCode, price, detail, reportTime };
+        if(currentProjectItem?.id) item.id = currentProjectItem.id;
+        await saveProject(item);
+        closeProjectModal();
+        await renderMicrobeProjectsModule();
+        showToast('保存成功', 'success');
+    }
+    
+    async function importProjectsExcel() {
+        if (!isAdmin) { showToast('无权限', 'error'); return; }
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xlsx,.xls,.csv';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const loader = document.createElement('div'); loader.className = 'loading-overlay'; loader.innerHTML = '<div>解析中...</div>'; document.body.appendChild(loader);
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+                if(!rows || rows.length < 2) throw new Error('至少需要标题行');
+                const headers = rows[0].map(c=>String(c||"").trim());
+                const idx = {
+                    medicalCode: headers.findIndex(h=>h.includes('医保编码')||h.includes('医保')),
+                    name: headers.findIndex(h=>h.includes('名称')||h.includes('项目名称')),
+                    hospitalRemark: headers.findIndex(h=>h.includes('本院备注')||h.includes('备注')),
+                    shortCode: headers.findIndex(h=>h.includes('简码')||h.includes('录入简码')),
+                    price: headers.findIndex(h=>h.includes('价格')||h.includes('收费')),
+                    detail: headers.findIndex(h=>h.includes('细项')),
+                    reportTime: headers.findIndex(h=>h.includes('出报告时间')||h.includes('报告时间'))
+                };
+                if(idx.name === -1) throw new Error('未找到“名称”列');
+                
+                let lastMedicalCode = '', lastName = '';
+                for(let i=1; i<rows.length; i++){
+                    const row = rows[i];
+                    if(!row || row.length===0) continue;
+                    let currentMedicalCode = (idx.medicalCode !== -1 && row[idx.medicalCode]) ? String(row[idx.medicalCode]).trim() : '';
+                    let currentName = (idx.name !== -1 && row[idx.name]) ? String(row[idx.name]).trim() : '';
+                    if(currentMedicalCode === '') currentMedicalCode = lastMedicalCode;
+                    if(currentName === '') currentName = lastName;
+                    if(currentMedicalCode) lastMedicalCode = currentMedicalCode;
+                    if(currentName) lastName = currentName;
+                    if(idx.medicalCode !== -1) row[idx.medicalCode] = currentMedicalCode;
+                    if(idx.name !== -1) row[idx.name] = currentName;
+                }
+                
+                const merged = new Map();
+                for(let i=1; i<rows.length; i++){
+                    const row = rows[i];
+                    if(!row || row.length===0) continue;
+                    const medicalCode = (idx.medicalCode !== -1 && row[idx.medicalCode]) ? String(row[idx.medicalCode]).trim() : '';
+                    const name = (idx.name !== -1 && row[idx.name]) ? String(row[idx.name]).trim() : '';
+                    if(!name) continue;
+                    const hospitalRemark = (idx.hospitalRemark !== -1 && row[idx.hospitalRemark]) ? String(row[idx.hospitalRemark]).trim() : '';
+                    const shortCode = (idx.shortCode !== -1 && row[idx.shortCode]) ? String(row[idx.shortCode]).trim() : '';
+                    const price = (idx.price !== -1 && row[idx.price]) ? String(row[idx.price]).trim() : '';
+                    const detail = (idx.detail !== -1 && row[idx.detail]) ? String(row[idx.detail]).trim() : '';
+                    const reportTime = (idx.reportTime !== -1 && row[idx.reportTime]) ? String(row[idx.reportTime]).trim() : '';
+                    const key = medicalCode + '|' + name;
+                    if(!merged.has(key)){
+                        merged.set(key, { medicalCode, name, hospitalRemark, shortCode, price, detailList: [], reportTime });
+                    }
+                    if(detail){
+                        merged.get(key).detailList.push(detail);
+                    }
+                }
+                let count = 0;
+                for(const [_, item] of merged.entries()){
+                    const detailStr = item.detailList.join('\n');
+                    const all = await getAllProjects();
+                    const existing = all.find(p=>p.name === item.name && p.medicalCode === item.medicalCode);
+                    if(existing){
+                        existing.medicalCode = item.medicalCode;
+                        existing.hospitalRemark = item.hospitalRemark;
+                        existing.shortCode = item.shortCode;
+                        existing.price = item.price;
+                        existing.detail = detailStr;
+                        existing.reportTime = item.reportTime;
+                        await saveProject(existing);
+                    } else {
+                        await saveProject({
+                            medicalCode: item.medicalCode,
+                            name: item.name,
+                            hospitalRemark: item.hospitalRemark,
+                            shortCode: item.shortCode,
+                            price: item.price,
+                            detail: detailStr,
+                            reportTime: item.reportTime
+                        });
+                    }
+                    count++;
+                }
+                showToast(`导入完成，共合并为 ${count} 个项目`, 'success');
+                await renderMicrobeProjectsModule();
+            } catch(err) { alert('导入失败：'+err.message); } finally { loader.remove(); }
+        };
+        input.click();
+    }
+    
     async function renderMicrobeProjectsModule(){
         const items = await getAllProjects();
-        let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:12px; margin-bottom:20px;"><div class="section-title" style="margin:0;"><i class="fas fa-vial"></i> 微生物项目</div>`;
+        let html = `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:12px; margin-bottom:20px;">
+                        <div class="section-title" style="margin:0;"><i class="fas fa-vial"></i> 微生物项目</div>`;
         if (isAdmin) {
-            html += `<div class="toolbar-buttons"><button class="btn-add" id="addProjectBtn"><i class="fas fa-plus"></i> 新增项目</button><button class="btn-import" id="importProjectBtn"><i class="fas fa-file-excel"></i> 导入Excel</button></div>`;
+            html += `<div class="toolbar-buttons">
+                        <button class="btn-add" id="addProjectBtn"><i class="fas fa-plus"></i> 新增项目</button>
+                        <button class="btn-import" id="importProjectBtn"><i class="fas fa-file-excel"></i> 导入Excel</button>
+                        <button id="batchDeleteBtn" class="btn-import" style="background:#c0392b;"><i class="fas fa-trash-alt"></i> 批量删除</button>
+                    </div>`;
         }
         html += `</div>`;
-        if(!items.length) html+=`<div class="no-result">暂无数据</div>`;
-        else{
-            html+=`<div class="card-grid">`;
+        if(items.length === 0){
+            html += `<div class="no-result">暂无项目数据，${isAdmin ? '点击新增或导入Excel' : '请联系管理员添加'}</div>`;
+        } else {
+            html += `<div class="project-list">
+                        <table class="project-table">
+                            <thead>
+                                <tr>
+                                    ${isAdmin ? '<th style="width:30px;"><input type="checkbox" id="selectAllCheckbox"></th>' : ''}
+                                    <th>医保编码</th>
+                                    <th>名称</th>
+                                    <th>本院备注</th>
+                                    <th>录入简码</th>
+                                    <th>价格</th>
+                                    <th>细项</th>
+                                    <th>出报告时间</th>
+                                    <th style="width:80px;">操作</th>
+                                <tr>
+                            </thead>
+                            <tbody>`;
             for(const it of items){
-                html+=`<div class="data-card">`;
+                const detailHtml = escapeHtml(it.detail || '-').replace(/\n/g, '<br>');
+                html += `<tr data-id="${it.id}">
+                            ${isAdmin ? `<td><input type="checkbox" class="project-checkbox" data-id="${it.id}"></td>` : ''}
+                            <td>${escapeHtml(it.medicalCode || '-')}</td>
+                            <td>${escapeHtml(it.name)}</td>
+                            <td>${escapeHtml(it.hospitalRemark || '-')}</td>
+                            <td>${escapeHtml(it.shortCode || '-')}</td>
+                            <td>${escapeHtml(it.price || '-')}</td>
+                            <td style="white-space: pre-line;">${detailHtml}</td>
+                            <td>${escapeHtml(it.reportTime || '-')}</td>
+                            <td class="project-actions">`;
                 if (isAdmin) {
-                    html+=`<div class="card-actions"><button class="edit-project" data-id="${it.id}"><i class="fas fa-edit"></i></button><button class="delete-project" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                    html += `<button class="edit-project" data-id="${it.id}"><i class="fas fa-edit"></i></button>
+                             <button class="delete-project" data-id="${it.id}"><i class="fas fa-trash-alt"></i></button>`;
                 }
-                html+=`<div class="card-title">${escapeHtml(it.name)}</div>
-                        <div class="card-field"><strong>编码：</strong> ${escapeHtml(it.code||'-')}</div>
-                        <div class="card-field"><strong>简码：</strong> ${escapeHtml(it.shortCode||'-')}</div>
-                        <div class="card-field"><strong>价格：</strong> ${escapeHtml(it.price||'-')}</div>
-                        <div class="card-field"><strong>细项：</strong> ${escapeHtml(it.detail||'-')}</div>
-                        <div class="card-field"><strong>出报告时间：</strong> ${escapeHtml(it.reportTime||'-')}</div></div>`;
+                html += `</td></tr>`;
             }
-            html+=`</div>`;
+            html += `</tbody>${'</table>'}</div>`;
         }
-        document.getElementById("dynamicContent").innerHTML=html;
+        document.getElementById("dynamicContent").innerHTML = html;
         if (isAdmin) {
             document.getElementById("addProjectBtn")?.addEventListener('click',()=>showProjectForm());
             document.getElementById("importProjectBtn")?.addEventListener('click',importProjectsExcel);
-            document.querySelectorAll('.edit-project').forEach(btn=>btn.addEventListener('click',async()=>{ const id=parseInt(btn.dataset.id); const all=await getAllProjects(); const proj=all.find(p=>p.id===id); if(proj) showProjectForm(proj); }));
-            document.querySelectorAll('.delete-project').forEach(btn=>btn.addEventListener('click',async()=>{ if(confirm("删除？")){ await deleteProject(parseInt(btn.dataset.id)); await renderMicrobeProjectsModule(); showToast("已删除","success"); } }));
+            const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+            if (batchDeleteBtn) {
+                batchDeleteBtn.addEventListener('click', async () => {
+                    const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
+                    if (checkedBoxes.length === 0) {
+                        showToast('请先选择要删除的项目', 'error');
+                        return;
+                    }
+                    if (confirm(`确定删除 ${checkedBoxes.length} 个项目吗？`)) {
+                        for (const cb of checkedBoxes) {
+                            const id = parseInt(cb.getAttribute('data-id'));
+                            await deleteProject(id);
+                        }
+                        await renderMicrobeProjectsModule();
+                        showToast(`已删除 ${checkedBoxes.length} 个项目`, 'success');
+                    }
+                });
+            }
+            const selectAll = document.getElementById('selectAllCheckbox');
+            if (selectAll) {
+                selectAll.addEventListener('change', (e) => {
+                    document.querySelectorAll('.project-checkbox').forEach(cb => cb.checked = e.target.checked);
+                });
+            }
+            document.querySelectorAll('.edit-project').forEach(btn=>{
+                btn.addEventListener('click',async()=>{
+                    const id = parseInt(btn.dataset.id);
+                    const all = await getAllProjects();
+                    const proj = all.find(p=>p.id===id);
+                    if(proj) showProjectForm(proj);
+                });
+            });
+            document.querySelectorAll('.delete-project').forEach(btn=>{
+                btn.addEventListener('click',async()=>{
+                    if(confirm('确定删除该项目？')){
+                        await deleteProject(parseInt(btn.dataset.id));
+                        await renderMicrobeProjectsModule();
+                        showToast('已删除','success');
+                    }
+                });
+            });
         }
     }
     
-    // 表单相关变量和函数
-    let currentBacteriaItem=null, currentFungusItem=null, currentProjectItem=null;
+    // ======================= 细菌/真菌表单辅助函数 =======================
+    let currentBacteriaItem=null, currentFungusItem=null;
     function showBacteriaForm(item=null){ currentBacteriaItem=item; const modal=document.getElementById('bacteriaModal'); document.getElementById('bacteriaModalTitle').innerText=item?'编辑细菌':'新增细菌'; document.getElementById('bacteriaName').value=item?.name||''; document.getElementById('bacteriaEnglish').value=item?.englishName||''; document.getElementById('bacteriaChar').value=item?.characteristics||''; document.getElementById('bacteriaClinical').value=item?.clinical||''; document.getElementById('bacteriaSus').value=item?.susceptibility||''; modal.classList.add('active'); }
     function closeBacteriaModal(){ document.getElementById('bacteriaModal').classList.remove('active'); currentBacteriaItem=null; }
     async function saveBacteriaModal(){ const name=document.getElementById('bacteriaName').value.trim(); if(!name){ alert('请输入名称'); return; } const item={ name, englishName:document.getElementById('bacteriaEnglish').value.trim(), characteristics:document.getElementById('bacteriaChar').value.trim(), clinical:document.getElementById('bacteriaClinical').value.trim(), susceptibility:document.getElementById('bacteriaSus').value.trim() }; if(currentBacteriaItem?.id) item.id=currentBacteriaItem.id; await saveBacteriaItem(item); closeBacteriaModal(); await renderBacteriaModule(); showToast('保存成功','success'); }
     function showFungusForm(item=null){ currentFungusItem=item; const modal=document.getElementById('fungusModal'); document.getElementById('fungusModalTitle').innerText=item?'编辑真菌':'新增真菌'; document.getElementById('fungusName').value=item?.name||''; document.getElementById('fungusEnglish').value=item?.englishName||''; document.getElementById('fungusChar').value=item?.characteristics||''; document.getElementById('fungusClinical').value=item?.clinical||''; document.getElementById('fungusSus').value=item?.susceptibility||''; modal.classList.add('active'); }
     function closeFungusModal(){ document.getElementById('fungusModal').classList.remove('active'); currentFungusItem=null; }
     async function saveFungusModal(){ const name=document.getElementById('fungusName').value.trim(); if(!name){ alert('请输入名称'); return; } const item={ name, englishName:document.getElementById('fungusEnglish').value.trim(), characteristics:document.getElementById('fungusChar').value.trim(), clinical:document.getElementById('fungusClinical').value.trim(), susceptibility:document.getElementById('fungusSus').value.trim() }; if(currentFungusItem?.id) item.id=currentFungusItem.id; await saveFungusItem(item); closeFungusModal(); await renderFungusModule(); showToast('保存成功','success'); }
-    function showProjectForm(item=null){ currentProjectItem=item; const modal=document.getElementById('projectModal'); document.getElementById('projectModalTitle').innerText=item?'编辑项目':'新增项目'; document.getElementById('projectName').value=item?.name||''; document.getElementById('projectCode').value=item?.code||''; document.getElementById('projectShortCode').value=item?.shortCode||''; document.getElementById('projectPrice').value=item?.price||''; document.getElementById('projectDetail').value=item?.detail||''; document.getElementById('projectReportTime').value=item?.reportTime||''; modal.classList.add('active'); }
-    function closeProjectModal(){ document.getElementById('projectModal').classList.remove('active'); currentProjectItem=null; }
-    async function saveProjectModal(){ const name=document.getElementById('projectName').value.trim(); if(!name){ alert('请输入项目名称'); return; } const item={ name, code:document.getElementById('projectCode').value.trim(), shortCode:document.getElementById('projectShortCode').value.trim(), price:document.getElementById('projectPrice').value.trim(), detail:document.getElementById('projectDetail').value.trim(), reportTime:document.getElementById('projectReportTime').value.trim() }; if(currentProjectItem?.id) item.id=currentProjectItem.id; await saveProject(item); closeProjectModal(); await renderMicrobeProjectsModule(); showToast('保存成功','success'); }
-    async function importProjectsExcel(){
-        if (!isAdmin) { showToast('无权限', 'error'); return; }
-        const input=document.createElement('input'); input.type='file'; input.accept='.xlsx,.xls,.csv'; input.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; const loader=document.createElement('div'); loader.className='loading-overlay'; loader.innerHTML='<div>解析中...</div>'; document.body.appendChild(loader); try{ const data=await file.arrayBuffer(); const workbook=XLSX.read(data,{type:'array'}); const sheet=workbook.Sheets[workbook.SheetNames[0]]; const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:""}); if(!rows||rows.length<2) throw new Error('至少需要标题行'); const headers=rows[0].map(c=>String(c||"").trim()); const nameIdx=headers.findIndex(h=>h.includes('项目名称')||h.includes('名称')); const codeIdx=headers.findIndex(h=>h.includes('编码')); const shortIdx=headers.findIndex(h=>h.includes('简码')); const priceIdx=headers.findIndex(h=>h.includes('价格')||h.includes('收费')); const detailIdx=headers.findIndex(h=>h.includes('细项')); const reportIdx=headers.findIndex(h=>h.includes('出报告时间')); if(nameIdx===-1) throw new Error('未找到项目名称列'); let count=0; for(let i=1;i<rows.length;i++){ const row=rows[i]; if(!row||row.length===0) continue; const name=row[nameIdx]?String(row[nameIdx]).trim():''; if(!name) continue; const code=codeIdx!==-1&&row[codeIdx]?String(row[codeIdx]).trim():''; const shortCode=shortIdx!==-1&&row[shortIdx]?String(row[shortIdx]).trim():''; const price=priceIdx!==-1&&row[priceIdx]?String(row[priceIdx]).trim():''; const detail=detailIdx!==-1&&row[detailIdx]?String(row[detailIdx]).trim():''; const reportTime=reportIdx!==-1&&row[reportIdx]?String(row[reportIdx]).trim():''; const all=await getAllProjects(); const existing=all.find(p=>p.name===name); if(existing){ existing.code=code; existing.shortCode=shortCode; existing.price=price; existing.detail=detail; existing.reportTime=reportTime; await saveProject(existing); } else { await saveProject({name,code,shortCode,price,detail,reportTime}); } count++; } showToast(`导入完成，共${count}条`,'success'); await renderMicrobeProjectsModule(); } catch(err){ alert('导入失败：'+err.message); } finally{ loader.remove(); } }; input.click(); }
     
-    // 耐药数据和天然耐药表（保留完整功能，但只读模式下禁用编辑）
+    // ======================= 耐药数据和天然耐药表 =======================
     const subSections = [
         { id: "hospital", name: "全院情况", type: "simple", defaultContent: "<p>全院耐药监测数据</p>" },
         { id: "specimen", name: "标本类型及耐药情况", type: "group", children: [
@@ -1001,7 +1395,7 @@
                 <tr><td>铜绿假单胞菌</td><td>替加环素, 磺胺类</td><td>对头孢他啶敏感需验证</td></tr>
                 <tr><td>鲍曼不动杆菌</td><td>氨曲南, 一代头孢</td><td>碳青霉烯类耐药增多</td></tr>
                 <tr><td>嗜麦芽窄食单胞菌</td><td>碳青霉烯类</td><td>治疗可选SMZ-TMP</td></tr>
-            </tbody></table></div>`;
+            </tbody>${'</table>'}</div>`;
         container.innerHTML=html;
         const editor=document.getElementById("naturalEditable");
         async function refreshAttach(){
@@ -1027,7 +1421,7 @@
         }
     }
     
-    // ======================= 工作台总览（含全部数据备份/恢复按钮） =======================
+    // ======================= 工作台总览 =======================
     function renderDashboard() {
         const today = new Date().toLocaleDateString('zh-CN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const resistancePreview = { CRE: "5.2%", MRSA: "34.5%", CRPA: "19.7%", CRAB: "62.3%" };
@@ -1044,34 +1438,32 @@
                     <span><i class="fas fa-calendar-alt"></i> ${today}</span>
                     <span><i class="fas fa-flask"></i> 临床微生物检验科</span>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; gap: 24px;">
-                    <!-- 科室公告 -->
-                    <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
-                        <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-bullhorn"></i> 科室公告</h3>
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <h3><i class="fas fa-bullhorn"></i> 科室公告</h3>
                         <div id="noticeList"></div>
-                        ${isAdmin ? `<div style="margin-top:12px; display:flex; gap:8px;">
-                            <input type="text" id="newNoticeInput" placeholder="新公告..." style="flex:1; padding:8px 12px; border:1px solid #dce5ec; border-radius:40px; font-size:0.8rem; outline:none;">
-                            <button id="addNoticeBtn" style="background:#eef2f6; border:none; border-radius:40px; padding:8px 16px; cursor:pointer;"><i class="fas fa-plus"></i> 添加</button>
-                        </div>` : ''}
+                        <div class="add-area" id="noticeAddArea">
+                            <input type="text" id="newNoticeInput" placeholder="新公告...">
+                            <button id="addNoticeBtn">添加</button>
+                        </div>
                     </div>
-                    <!-- 待办任务 -->
-                    <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
-                        <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-check-circle"></i> 待办任务</h3>
+                    <div class="card">
+                        <h3><i class="fas fa-check-circle"></i> 待办任务</h3>
                         <div id="taskList"></div>
-                        ${isAdmin ? `<div style="margin-top:12px; display:flex; gap:8px;">
-                            <input type="text" id="newTaskInput" placeholder="新任务..." style="flex:1; padding:8px 12px; border:1px solid #dce5ec; border-radius:40px; font-size:0.8rem; outline:none;">
-                            <button id="addTaskBtn" style="background:#eef2f6; border:none; border-radius:40px; padding:8px 16px; cursor:pointer;"><i class="fas fa-plus"></i> 添加</button>
-                        </div>` : ''}
+                        <div class="add-area" id="taskAddArea">
+                            <input type="text" id="newTaskInput" placeholder="新任务...">
+                            <button id="addTaskBtn">添加</button>
+                        </div>
                     </div>
-                    <!-- 耐药数据速览 + 备份/恢复 -->
-                    <div style="flex: 1; min-width: 260px; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9f0f5;">
-                        <h3 style="font-size:1rem; color:#1f5575; border-left:4px solid #2c9bcf; padding-left:12px; margin-bottom:16px;"><i class="fas fa-chart-line"></i> 耐药数据速览</h3>
-                        ${Object.entries(resistancePreview).map(([k,v]) => `<div style="display:flex; justify-content:space-between; background:#f8fafc; padding:10px 12px; border-radius:20px; margin-bottom:12px;"><span style="font-weight:600;">${k} 检出率</span><span style="font-family:monospace; font-size:1.1rem; font-weight:600; color:#2c9bcf;">${v}</span></div>`).join('')}
-                        <div id="quickLinks" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:12px;">${quickLinks.map(link => `<div class="quick-link-item" data-nav="${link.nav}" data-action="${link.action||''}" style="background:#f0f4f9; border-radius:40px; padding:8px 16px; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><i class="fas ${link.icon}"></i> ${link.name}</div>`).join('')}</div>
-                        <div style="display: flex; gap: 12px; margin-top: 20px;">
-                            <button id="backupAllData" style="background:#2c9bcf; color:white; border:none; border-radius:40px; padding:6px 12px; cursor:pointer;"><i class="fas fa-database"></i> 备份全部数据</button>
-                            ${isAdmin ? `<button id="restoreAllData" style="background:#5f8bb3; color:white; border:none; border-radius:40px; padding:6px 12px; cursor:pointer;"><i class="fas fa-upload"></i> 恢复全部数据</button>
-                            <input type="file" id="restoreFileInput" accept=".json" style="display:none;">` : ''}
+                    <div class="card">
+                        <h3><i class="fas fa-chart-line"></i> 耐药数据速览</h3>
+                        ${Object.entries(resistancePreview).map(([k,v]) => `<div class="resistance-item"><span class="resistance-name">${k} 检出率</span><span class="resistance-value">${v}</span></div>`).join('')}
+                        <div class="quick-links">
+                            ${quickLinks.map(link => `<div class="quick-link" data-nav="${link.nav}" data-action="${link.action || ''}"><i class="fas ${link.icon}"></i> ${link.name}</div>`).join('')}
+                        </div>
+                        <div class="button-group">
+                            <button id="backupAllData" class="btn-backup"><i class="fas fa-database"></i> 备份全部数据</button>
+                            ${isAdmin ? `<button id="restoreAllData" class="btn-restore"><i class="fas fa-upload"></i> 恢复全部数据</button><input type="file" id="restoreFileInput" style="display:none;">` : ''}
                         </div>
                     </div>
                 </div>
@@ -1079,18 +1471,153 @@
         `;
     }
     
-    // ======================= 数据备份与恢复 =======================
+    // ======================= 工作台事件绑定 =======================
+    function bindDashboardEvents() {
+        const NOTICE_STORAGE_KEY = 'dashboard_notices';
+        const TASK_STORAGE_KEY = 'dashboard_tasks';
+
+        function saveNotices() {
+            const notices = [];
+            document.querySelectorAll('#noticeList .notice-item').forEach(item => {
+                const textSpan = item.querySelector('.notice-text');
+                const timeSpan = item.querySelector('.notice-time');
+                if(textSpan && timeSpan) notices.push({ text: textSpan.innerText, time: timeSpan.innerText });
+            });
+            localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
+        }
+        function loadNotices() {
+            const container = document.getElementById('noticeList');
+            if (!container) return;
+            const saved = localStorage.getItem(NOTICE_STORAGE_KEY);
+            let notices = saved ? JSON.parse(saved) : [
+                { text: "📢 2025年CLSI M100文件已更新，请查阅", time: "昨天" },
+                { text: "🔔 本月院感监测报告已上传至『检验规程』", time: "前天" },
+                { text: "⚠️ 质控中心提醒：碳青霉烯酶表型检测注意质量控制", time: "3天前" }
+            ];
+            container.innerHTML = '';
+            notices.forEach((n, idx) => {
+                const div = document.createElement('div');
+                div.className = 'notice-item';
+                div.innerHTML = `
+                    <div><span class="notice-text">${escapeHtml(n.text)}</span><span class="notice-time">${escapeHtml(n.time)}</span></div>
+                    ${isAdmin ? `<button class="delete-btn" data-idx="${idx}"><i class="fas fa-trash-alt"></i></button>` : ''}
+                `;
+                container.appendChild(div);
+            });
+            if(isAdmin){
+                document.querySelectorAll('#noticeList .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
+                        notices.splice(idx, 1);
+                        localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
+                        loadNotices();
+                    });
+                });
+            }
+        }
+        if(isAdmin){
+            document.getElementById('addNoticeBtn')?.addEventListener('click', () => {
+                const input = document.getElementById('newNoticeInput');
+                const text = input.value.trim();
+                if(text){
+                    let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
+                    const now = new Date();
+                    const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+                    notices.unshift({ text, time: timeStr });
+                    localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
+                    input.value = '';
+                    loadNotices();
+                    showToast('公告已添加', 'success');
+                }
+            });
+        }
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('#taskList .task-item').forEach(item => {
+                const cb = item.querySelector('input[type="checkbox"]');
+                const label = item.querySelector('label');
+                if(cb && label) tasks.push({ text: label.innerText, done: cb.checked });
+            });
+            localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+        }
+        function loadTasks() {
+            const container = document.getElementById('taskList');
+            if(!container) return;
+            const saved = localStorage.getItem(TASK_STORAGE_KEY);
+            let tasks = saved ? JSON.parse(saved) : [
+                { text: "完成本周耐药数据汇总", done: false },
+                { text: "更新细菌目录库中的MRSA药敏信息", done: false }
+            ];
+            container.innerHTML = '';
+            tasks.forEach((t, idx) => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = `
+                    <div class="task-check">
+                        <input type="checkbox" id="task_${idx}" ${t.done ? 'checked' : ''}>
+                        <label for="task_${idx}">${escapeHtml(t.text)}</label>
+                    </div>
+                    ${isAdmin ? `<button class="delete-btn" data-idx="${idx}"><i class="fas fa-trash-alt"></i></button>` : ''}
+                `;
+                container.appendChild(div);
+            });
+            document.querySelectorAll('#taskList input[type="checkbox"]').forEach(cb => cb.addEventListener('change', () => saveTasks()));
+            if(isAdmin){
+                document.querySelectorAll('#taskList .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
+                        tasks.splice(idx, 1);
+                        localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+                        loadTasks();
+                    });
+                });
+            }
+        }
+        if(isAdmin){
+            document.getElementById('addTaskBtn')?.addEventListener('click', () => {
+                const input = document.getElementById('newTaskInput');
+                const text = input.value.trim();
+                if(text){
+                    let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
+                    tasks.push({ text, done: false });
+                    localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
+                    input.value = '';
+                    loadTasks();
+                    showToast('任务已添加', 'success');
+                }
+            });
+        }
+        document.getElementById('backupAllData')?.addEventListener('click', backupAllData);
+        if(isAdmin) document.getElementById('restoreAllData')?.addEventListener('click', restoreAllData);
+        document.querySelectorAll('.quick-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const nav = link.getAttribute('data-nav');
+                const action = link.getAttribute('data-action');
+                if(nav){
+                    const navItem = document.querySelector(`.nav-item[data-nav="${nav}"]`);
+                    if(navItem) navItem.click();
+                    if(isAdmin && nav === 'bacteria' && action === 'addBacteria'){
+                        setTimeout(() => document.getElementById('addBacteriaBtn')?.click(), 100);
+                    } else if(isAdmin && nav === 'bacteria' && action === 'import'){
+                        setTimeout(() => document.getElementById('importBacteriaBtn')?.click(), 100);
+                    }
+                }
+            });
+        });
+        loadNotices();
+        loadTasks();
+    }
+    
+    // ======================= 备份恢复 =======================
     async function backupAllData() {
         if (!db) await openDB();
         const backup = {};
-
         backup.bacteria = await getAllBacteria();
         backup.fungi = await getAllFungi();
         backup.projects = await getAllProjects();
-        
-        const resistanceContents = await getAllResistanceContents();
-        backup.resistanceContents = resistanceContents;
-        
+        backup.resistanceContents = await getAllResistanceContents();
         const allAttachments = [];
         const attachmentPrefixes = ['attach_', 'natural_attach_'];
         for (const prefix of attachmentPrefixes) {
@@ -1103,32 +1630,22 @@
         }
         backup.attachments = [];
         for (const att of allAttachments) {
-            const blob = att.blob;
             const base64 = await new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
+                reader.readAsDataURL(att.blob);
             });
             backup.attachments.push({
-                key: att.key,
-                name: att.name,
-                mime: att.type,
-                base64: base64,
-                size: att.size,
-                uploadTime: att.uploadTime
+                key: att.key, name: att.name, mime: att.type, base64: base64, size: att.size, uploadTime: att.uploadTime
             });
         }
-        
         const naturalKey = "natural_resistance_main";
         const naturalTx = db.transaction([STORE_NATURAL], 'readonly');
         const naturalStore = naturalTx.objectStore(STORE_NATURAL);
         const naturalReq = naturalStore.get(naturalKey);
-        const naturalContent = await new Promise(resolve => { naturalReq.onsuccess = () => resolve(naturalReq.result?.html || ''); });
-        backup.naturalResistance = naturalContent;
-        
+        backup.naturalResistance = await new Promise(resolve => { naturalReq.onsuccess = () => resolve(naturalReq.result?.html || ''); });
         backup.dashboardNotices = localStorage.getItem('dashboard_notices') || '[]';
         backup.dashboardTasks = localStorage.getItem('dashboard_tasks') || '[]';
-        
         const jsonStr = JSON.stringify(backup, null, 2);
         const blob = new Blob([jsonStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -1139,7 +1656,6 @@
         URL.revokeObjectURL(url);
         showToast('全部数据已备份', 'success');
     }
-
     async function restoreAllData() {
         if (!isAdmin) { showToast('无权限', 'error'); return; }
         const fileInput = document.getElementById('restoreFileInput');
@@ -1147,42 +1663,22 @@
         fileInput.onchange = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const loader = document.createElement('div');
-            loader.className = 'loading-overlay';
-            loader.innerHTML = '<div><i class="fas fa-spinner fa-pulse"></i> 恢复数据中，请稍候...</div>';
-            document.body.appendChild(loader);
+            const loader = document.createElement('div'); loader.className = 'loading-overlay'; loader.innerHTML = '<div><i class="fas fa-spinner fa-pulse"></i> 恢复数据中...</div>'; document.body.appendChild(loader);
             try {
                 const text = await file.text();
                 const backup = JSON.parse(text);
-                
-                if (backup.bacteria) {
-                    for (const b of backup.bacteria) {
-                        await saveBacteriaItem(b);
-                    }
+                if (backup.bacteria) for (const b of backup.bacteria) await saveBacteriaItem(b);
+                if (backup.fungi) for (const f of backup.fungi) await saveFungusItem(f);
+                if (backup.projects) for (const p of backup.projects) await saveProject(p);
+                if (backup.resistanceContents) for (const rc of backup.resistanceContents) {
+                    const tx = db.transaction([STORE_RESISTANCE], 'readwrite');
+                    const store = tx.objectStore(STORE_RESISTANCE);
+                    store.put({ key: rc.key, html: rc.html });
+                    await new Promise(resolve => { tx.oncomplete = resolve; });
                 }
-                if (backup.fungi) {
-                    for (const f of backup.fungi) {
-                        await saveFungusItem(f);
-                    }
-                }
-                if (backup.projects) {
-                    for (const p of backup.projects) {
-                        await saveProject(p);
-                    }
-                }
-                if (backup.resistanceContents) {
-                    for (const rc of backup.resistanceContents) {
-                        const tx = db.transaction([STORE_RESISTANCE], 'readwrite');
-                        const store = tx.objectStore(STORE_RESISTANCE);
-                        store.put({ key: rc.key, html: rc.html });
-                        await new Promise(resolve => { tx.oncomplete = resolve; });
-                    }
-                }
-                if (backup.attachments) {
-                    for (const att of backup.attachments) {
-                        const blob = await (await fetch(att.base64)).blob();
-                        await saveAttachment(att.key, att.name, att.mime, blob);
-                    }
+                if (backup.attachments) for (const att of backup.attachments) {
+                    const blob = await (await fetch(att.base64)).blob();
+                    await saveAttachment(att.key, att.name, att.mime, blob);
                 }
                 if (backup.naturalResistance !== undefined) {
                     const tx = db.transaction([STORE_NATURAL], 'readwrite');
@@ -1192,186 +1688,10 @@
                 }
                 if (backup.dashboardNotices) localStorage.setItem('dashboard_notices', backup.dashboardNotices);
                 if (backup.dashboardTasks) localStorage.setItem('dashboard_tasks', backup.dashboardTasks);
-                
-                showToast('全部数据恢复成功！请刷新页面查看。', 'success');
+                showToast('恢复成功！刷新页面', 'success');
                 setTimeout(() => location.reload(), 1500);
-            } catch (err) {
-                console.error(err);
-                alert('恢复失败：文件格式不正确或数据损坏');
-            } finally {
-                loader.remove();
-            }
+            } catch(err) { alert('恢复失败：'+err.message); } finally { loader.remove(); }
         };
-    }
-
-    // 绑定工作台事件（公告/任务的增删，以及备份/恢复按钮）
-    function bindDashboardEvents() {
-        const NOTICE_STORAGE_KEY = 'dashboard_notices';
-        const TASK_STORAGE_KEY = 'dashboard_tasks';
-
-        // 公告操作（仅管理员可增删）
-        function saveNotices() {
-            const notices = [];
-            document.querySelectorAll('#noticeList .notice-item').forEach(item => {
-                const textSpan = item.querySelector('.notice-text');
-                const timeSpan = item.querySelector('.notice-time');
-                notices.push({ text: textSpan.innerText, time: timeSpan.innerText });
-            });
-            localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
-        }
-        function loadNotices() {
-            const saved = localStorage.getItem(NOTICE_STORAGE_KEY);
-            const noticeContainer = document.getElementById('noticeList');
-            if (!noticeContainer) return;
-            noticeContainer.innerHTML = '';
-            let notices = saved ? JSON.parse(saved) : [
-                { text: "📢 2025年CLSI M100文件已更新，请查阅", time: "昨天" },
-                { text: "🔔 本月院感监测报告已上传至『检验规程』", time: "前天" },
-                { text: "⚠️ 质控中心提醒：碳青霉烯酶表型检测注意质量控制", time: "3天前" }
-            ];
-            notices.forEach((n, idx) => {
-                const div = document.createElement('div');
-                div.className = 'notice-item';
-                div.style.padding = '10px 0';
-                div.style.borderBottom = '1px solid #eef2f6';
-                div.style.display = 'flex';
-                div.style.justifyContent = 'space-between';
-                div.style.alignItems = 'center';
-                div.innerHTML = `
-                    <div>
-                        <span class="notice-text" style="font-size:0.85rem;">${escapeHtml(n.text)}</span>
-                        <span class="notice-time" style="font-size:0.7rem; color:#8aa9c4; margin-left:8px;">${escapeHtml(n.time)}</span>
-                    </div>
-                    ${isAdmin ? `<button class="delete-notice" data-idx="${idx}" style="background:none; border:none; color:#8aa9c4; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
-                `;
-                noticeContainer.appendChild(div);
-            });
-            if (isAdmin) {
-                document.querySelectorAll('.delete-notice').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = parseInt(btn.getAttribute('data-idx'));
-                        let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
-                        notices.splice(idx, 1);
-                        localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
-                        loadNotices();
-                    });
-                });
-            }
-        }
-        if (isAdmin) {
-            const addNoticeBtn = document.getElementById('addNoticeBtn');
-            const noticeInput = document.getElementById('newNoticeInput');
-            if (addNoticeBtn) {
-                addNoticeBtn.addEventListener('click', () => {
-                    const text = noticeInput.value.trim();
-                    if (text) {
-                        let notices = JSON.parse(localStorage.getItem(NOTICE_STORAGE_KEY) || '[]');
-                        const now = new Date();
-                        const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
-                        notices.unshift({ text, time: timeStr });
-                        localStorage.setItem(NOTICE_STORAGE_KEY, JSON.stringify(notices));
-                        noticeInput.value = '';
-                        loadNotices();
-                        showToast('公告已添加', 'success');
-                    }
-                });
-            }
-        }
-
-        // 任务操作
-        function saveTasks() {
-            const tasks = [];
-            document.querySelectorAll('#taskList .task-item').forEach(item => {
-                const checkbox = item.querySelector('input');
-                const label = item.querySelector('label');
-                tasks.push({ text: label.innerText, done: checkbox.checked });
-            });
-            localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
-        }
-        function loadTasks() {
-            const saved = localStorage.getItem(TASK_STORAGE_KEY);
-            const taskContainer = document.getElementById('taskList');
-            if (!taskContainer) return;
-            taskContainer.innerHTML = '';
-            let tasks = saved ? JSON.parse(saved) : [
-                { text: "完成本周耐药数据汇总", done: false },
-                { text: "更新细菌目录库中的MRSA药敏信息", done: false }
-            ];
-            tasks.forEach((t, idx) => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                div.style.padding = '10px 0';
-                div.style.borderBottom = '1px solid #eef2f6';
-                div.style.display = 'flex';
-                div.style.justifyContent = 'space-between';
-                div.style.alignItems = 'center';
-                div.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="task_${idx}" ${t.done ? 'checked' : ''} style="width:18px;height:18px;">
-                        <label for="task_${idx}" style="font-size:0.85rem; ${t.done ? 'text-decoration:line-through; color:#8aa9c4;' : ''}">${escapeHtml(t.text)}</label>
-                    </div>
-                    ${isAdmin ? `<button class="delete-task" data-idx="${idx}" style="background:none; border:none; color:#8aa9c4; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
-                `;
-                taskContainer.appendChild(div);
-            });
-            document.querySelectorAll('#taskList input[type="checkbox"]').forEach(cb => {
-                cb.addEventListener('change', () => saveTasks());
-            });
-            if (isAdmin) {
-                document.querySelectorAll('.delete-task').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = parseInt(btn.getAttribute('data-idx'));
-                        let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
-                        tasks.splice(idx, 1);
-                        localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
-                        loadTasks();
-                    });
-                });
-            }
-        }
-        if (isAdmin) {
-            const addTaskBtn = document.getElementById('addTaskBtn');
-            const taskInput = document.getElementById('newTaskInput');
-            if (addTaskBtn) {
-                addTaskBtn.addEventListener('click', () => {
-                    const text = taskInput.value.trim();
-                    if (text) {
-                        let tasks = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY) || '[]');
-                        tasks.push({ text, done: false });
-                        localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(tasks));
-                        taskInput.value = '';
-                        loadTasks();
-                        showToast('任务已添加', 'success');
-                    }
-                });
-            }
-        }
-
-        // 备份/恢复按钮
-        document.getElementById('backupAllData')?.addEventListener('click', backupAllData);
-        if (isAdmin) {
-            document.getElementById('restoreAllData')?.addEventListener('click', restoreAllData);
-        }
-
-        // 快捷链接跳转（只读模式也能跳转，但需注意如果点击新增细菌等，需要管理员权限才能看到按钮，不会有误操作）
-        document.querySelectorAll('.quick-link-item').forEach(link => {
-            link.addEventListener('click', () => {
-                const nav = link.getAttribute('data-nav');
-                const action = link.getAttribute('data-action');
-                if (nav) {
-                    const navItem = document.querySelector(`.nav-item[data-nav="${nav}"]`);
-                    if (navItem) navItem.click();
-                    if (isAdmin && nav === 'bacteria' && action === 'addBacteria') {
-                        setTimeout(() => { document.getElementById('addBacteriaBtn')?.click(); }, 100);
-                    } else if (isAdmin && nav === 'bacteria' && action === 'import') {
-                        setTimeout(() => { document.getElementById('importBacteriaBtn')?.click(); }, 100);
-                    }
-                }
-            });
-        });
-
-        loadNotices();
-        loadTasks();
     }
     
     // ======================= 全局搜索 =======================
@@ -1381,7 +1701,7 @@
         const bacteria=await getAllBacteria(); const fungi=await getAllFungi(); const projects=await getAllProjects();
         const matchedBacteria=bacteria.filter(b=>(b.name&&b.name.toLowerCase().includes(lower))||(b.englishName&&b.englishName.toLowerCase().includes(lower))||(b.characteristics&&b.characteristics.toLowerCase().includes(lower))||(b.clinical&&b.clinical.toLowerCase().includes(lower))||(b.susceptibility&&b.susceptibility.toLowerCase().includes(lower)));
         const matchedFungi=fungi.filter(f=>(f.name&&f.name.toLowerCase().includes(lower))||(f.englishName&&f.englishName.toLowerCase().includes(lower))||(f.characteristics&&f.characteristics.toLowerCase().includes(lower))||(f.clinical&&f.clinical.toLowerCase().includes(lower))||(f.susceptibility&&f.susceptibility.toLowerCase().includes(lower)));
-        const matchedProjects=projects.filter(p=>(p.name&&p.name.toLowerCase().includes(lower))||(p.code&&p.code.toLowerCase().includes(lower))||(p.shortCode&&p.shortCode.toLowerCase().includes(lower))||(p.detail&&p.detail.toLowerCase().includes(lower)));
+        const matchedProjects=projects.filter(p=>(p.name&&p.name.toLowerCase().includes(lower))||(p.medicalCode&&p.medicalCode.toLowerCase().includes(lower))||(p.shortCode&&p.shortCode.toLowerCase().includes(lower))||(p.detail&&p.detail.toLowerCase().includes(lower)));
         const allRes=await getAllResistanceContents(); const matchedRes=[];
         for(const rc of allRes){ if(rc.html && rc.html.toLowerCase().includes(lower)){ let title=rc.key; for(const sec of subSections){ if(rc.key===`content_${sec.id}`){ title=sec.name; break; } if(sec.children){ for(const child of sec.children){ if(rc.key===`content_${sec.id}_${child.id}`){ title=`${sec.name} - ${child.name}`; break; } } } } matchedRes.push({title, snippet:rc.html.replace(/<[^>]+>/g,' ').substring(0,100)+'...', key:rc.key }); } }
         return {bacteria:matchedBacteria, fungi:matchedFungi, projects:matchedProjects, resistance:matchedRes};
@@ -1391,7 +1711,7 @@
         const container=document.getElementById("dynamicContent");
         if(bacteria.length===0 && fungi.length===0 && projects.length===0 && resistance.length===0){ container.innerHTML=`<div class="no-result">未找到相关</div>`; return; }
         let html=`<div class="section-title">搜索结果：“${escapeHtml(kw)}”</div>`;
-        if(projects.length){ html+=`<div class="section-title" style="font-size:1rem;">🧪 微生物项目 (${projects.length})</div><div class="card-grid">`; for(const p of projects) html+=`<div class="data-card"><div class="card-title">${escapeHtml(p.name)}</div><div class="card-field"><strong>编码：</strong> ${escapeHtml(p.code||'-')}</div><div class="card-field"><strong>简码：</strong> ${escapeHtml(p.shortCode||'-')}</div><div class="card-field"><strong>价格：</strong> ${escapeHtml(p.price||'-')}</div><div class="card-field"><strong>出报告时间：</strong> ${escapeHtml(p.reportTime||'-')}</div></div>`; html+=`</div>`; }
+        if(projects.length){ html+=`<div class="section-title">🧪 微生物项目 (${projects.length})</div><div class="card-grid">`; for(const p of projects) html+=`<div class="data-card"><div class="card-title">${escapeHtml(p.name)}</div><div class="card-field"><strong>医保编码：</strong> ${escapeHtml(p.medicalCode||'-')}</div><div class="card-field"><strong>简码：</strong> ${escapeHtml(p.shortCode||'-')}</div><div class="card-field"><strong>价格：</strong> ${escapeHtml(p.price||'-')}</div><div class="card-field"><strong>细项：</strong> ${escapeHtml(p.detail||'-')}</div></div>`; html+=`</div>`; }
         if(bacteria.length){ html+=`<div class="section-title">🧫 细菌 (${bacteria.length})</div><div class="card-grid">`; for(const b of bacteria) html+=`<div class="data-card"><div class="card-title">${escapeHtml(b.name)}</div><div class="card-field"><strong>一般特性：</strong> ${escapeHtml(b.characteristics||'')}</div><div class="card-field"><strong>临床相关性：</strong> ${escapeHtml(b.clinical||'')}</div><div class="card-field"><strong>药敏：</strong> ${escapeHtml(b.susceptibility||'')}</div></div>`; html+=`</div>`; }
         if(fungi.length){ html+=`<div class="section-title">🍄 真菌 (${fungi.length})</div><div class="card-grid">`; for(const f of fungi) html+=`<div class="data-card"><div class="card-title">${escapeHtml(f.name)}</div><div class="card-field"><strong>一般特性：</strong> ${escapeHtml(f.characteristics||'')}</div><div class="card-field"><strong>临床相关性：</strong> ${escapeHtml(f.clinical||'')}</div><div class="card-field"><strong>药敏：</strong> ${escapeHtml(f.susceptibility||'')}</div></div>`; html+=`</div>`; }
         if(resistance.length){ html+=`<div class="section-title">📈 耐药数据 (${resistance.length})</div><div class="card-grid">`; for(const r of resistance) html+=`<div class="data-card search-res-card" data-reskey="${r.key}"><div class="card-title">${escapeHtml(r.title)}</div><div class="card-summary">${escapeHtml(r.snippet)}</div><div class="keywords">点击跳转</div></div>`; html+=`</div>`; }
@@ -1415,43 +1735,21 @@
         else if(currentNav==='protocol') await renderFileManager('protocol', '检验规程 / SOP');
         else if(currentNav==='qc') await renderFileManager('qc', '质控标准');
         else attachDirChipEvents();
-        
-        // 根据管理员状态显示/隐藏顶部按钮
         const adminLoginBtn = document.getElementById('adminLoginBtn');
         const adminLogoutBtn = document.getElementById('adminLogoutBtn');
         if (adminLoginBtn && adminLogoutBtn) {
-            if (isAdmin) {
-                adminLoginBtn.style.display = 'none';
-                adminLogoutBtn.style.display = 'inline-block';
-            } else {
-                adminLoginBtn.style.display = 'inline-block';
-                adminLogoutBtn.style.display = 'none';
-            }
+            if (isAdmin) { adminLoginBtn.style.display = 'none'; adminLogoutBtn.style.display = 'inline-block'; }
+            else { adminLoginBtn.style.display = 'inline-block'; adminLogoutBtn.style.display = 'none'; }
         }
     }
     function attachDirChipEvents(){
-        document.querySelectorAll('.dir-chip').forEach(chip=>{
-            chip.removeEventListener('click',chip._listener);
-            const handler=()=>{ const kw=chip.innerText.trim(); document.getElementById('globalSearchInput').value=kw; currentSearchKeyword=kw; renderMain(); };
-            chip.addEventListener('click',handler);
-            chip._listener=handler;
-        });
+        document.querySelectorAll('.dir-chip').forEach(chip=>{ chip.removeEventListener('click',chip._listener); const handler=()=>{ const kw=chip.innerText.trim(); document.getElementById('globalSearchInput').value=kw; currentSearchKeyword=kw; renderMain(); }; chip.addEventListener('click',handler); chip._listener=handler; });
     }
     function updateActiveNav(nav){
         document.querySelectorAll('.nav-item').forEach(item=>{ if(item.getAttribute('data-nav')===nav) item.classList.add('active'); else item.classList.remove('active'); });
     }
     function bindNavEvents(){
-        document.querySelectorAll('.nav-item').forEach(item=>{
-            item.addEventListener('click',async()=>{
-                const nav=item.getAttribute('data-nav');
-                if(!nav) return;
-                currentNav=nav;
-                currentSearchKeyword="";
-                document.getElementById('globalSearchInput').value="";
-                updateActiveNav(nav);
-                await renderMain();
-            });
-        });
+        document.querySelectorAll('.nav-item').forEach(item=>{ item.addEventListener('click',async()=>{ const nav=item.getAttribute('data-nav'); if(!nav) return; currentNav=nav; currentSearchKeyword=""; document.getElementById('globalSearchInput').value=""; updateActiveNav(nav); await renderMain(); }); });
     }
     function bindSearchEvents(){
         const input=document.getElementById('globalSearchInput'), clearBtn=document.getElementById('clearSearchBtn');
@@ -1472,7 +1770,15 @@
         document.getElementById('fungusCancelBtn').addEventListener('click',closeFungusModal);
         document.getElementById('fungusSaveBtn').addEventListener('click',saveFungusModal);
         const projectModal=document.createElement('div'); projectModal.id='projectModal'; projectModal.className='modal';
-        projectModal.innerHTML=`<div class="modal-content"><h3 id="projectModalTitle">新增项目</h3><input id="projectName" placeholder="项目名称 *"><input id="projectCode" placeholder="编码"><input id="projectShortCode" placeholder="简码"><input id="projectPrice" placeholder="价格"><textarea id="projectDetail" placeholder="细项"></textarea><input id="projectReportTime" placeholder="出报告时间"><div class="modal-actions"><button id="projectCancelBtn">取消</button><button id="projectSaveBtn">保存</button></div></div>`;
+        projectModal.innerHTML=`<div class="modal-content"><h3 id="projectModalTitle">新增项目</h3>
+            <input id="projectMedicalCode" placeholder="医保编码">
+            <input id="projectName" placeholder="名称 *">
+            <input id="projectHospitalRemark" placeholder="本院备注">
+            <input id="projectShortCode" placeholder="录入简码">
+            <input id="projectPrice" placeholder="价格">
+            <textarea id="projectDetail" placeholder="细项"></textarea>
+            <input id="projectReportTime" placeholder="出报告时间">
+            <div class="modal-actions"><button id="projectCancelBtn">取消</button><button id="projectSaveBtn">保存</button></div></div>`;
         document.body.appendChild(projectModal);
         document.getElementById('projectCancelBtn').addEventListener('click',closeProjectModal);
         document.getElementById('projectSaveBtn').addEventListener('click',saveProjectModal);
@@ -1483,28 +1789,15 @@
     async function init(){
         await openDB();
         initAdminStatus();
-        // 初始化默认数据（仅当数据库为空时）
         let bacteria=await getAllBacteria(); if(bacteria.length===0){ await saveBacteriaItem({name:"金黄色葡萄球菌",englishName:"Staphylococcus aureus",characteristics:"革兰阳性球菌",clinical:"皮肤软组织感染",susceptibility:"MRSA需万古霉素"}); await saveBacteriaItem({name:"大肠埃希菌",englishName:"Escherichia coli",characteristics:"革兰阴性杆菌",clinical:"尿路感染",susceptibility:"ESBL菌株碳青霉烯敏感"}); }
         let fungi=await getAllFungi(); if(fungi.length===0){ await saveFungusItem({name:"白念珠菌",englishName:"Candida albicans",characteristics:"酵母样真菌",clinical:"口腔、阴道感染",susceptibility:"氟康唑敏感"}); }
         addModalsToBody();
         bindNavEvents();
         bindSearchEvents();
-        
-        // 绑定管理员按钮事件
         const adminLoginBtn = document.getElementById('adminLoginBtn');
         const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-        if (adminLoginBtn) {
-            adminLoginBtn.addEventListener('click', () => {
-                const pwd = prompt('请输入管理员密码');
-                if (pwd) adminLogin(pwd);
-            });
-        }
-        if (adminLogoutBtn) {
-            adminLogoutBtn.addEventListener('click', () => {
-                adminLogout();
-            });
-        }
-        
+        if(adminLoginBtn) adminLoginBtn.addEventListener('click',()=>{ const pwd=prompt('请输入管理员密码'); if(pwd) adminLogin(pwd); });
+        if(adminLogoutBtn) adminLogoutBtn.addEventListener('click',()=>{ adminLogout(); });
         currentNav="dashboard";
         updateActiveNav("dashboard");
         await renderMain();
